@@ -68,7 +68,12 @@ export default function SettingsPage() {
     name_ar: '', name_en: '', phone: '', email: '',
     address: '', city: '', country: 'المملكة العربية السعودية',
     website: '', tax_number: '', commercial_reg: '',
-    currency: 'SAR', logo_url: ''
+    currency: 'SAR', logo_url: '',
+    language: 'ar', timezone: 'Asia/Riyadh',
+    week_start: 'sunday', date_format: 'ar-SA',
+    notify_leave_request: true, notify_leave_approved: true,
+    notify_payroll: true, notify_new_employee: true,
+    notify_document_expiry: true, notify_weekly_report: true,
   })
 
   useEffect(() => {
@@ -83,7 +88,17 @@ export default function SettingsPage() {
         country: c.country || 'المملكة العربية السعودية',
         website: c.website || '', tax_number: c.tax_number || '',
         commercial_reg: c.commercial_reg || '',
-        currency: c.currency || 'SAR', logo_url: c.logo_url || ''
+        currency: c.currency || 'SAR', logo_url: c.logo_url || '',
+        language: (c as any).language || 'ar',
+        timezone: (c as any).timezone || 'Asia/Riyadh',
+        week_start: (c as any).week_start || 'sunday',
+        date_format: (c as any).date_format || 'ar-SA',
+        notify_leave_request:   (c as any).notify_leave_request   ?? true,
+        notify_leave_approved:  (c as any).notify_leave_approved  ?? true,
+        notify_payroll:         (c as any).notify_payroll         ?? true,
+        notify_new_employee:    (c as any).notify_new_employee    ?? true,
+        notify_document_expiry: (c as any).notify_document_expiry ?? true,
+        notify_weekly_report:   (c as any).notify_weekly_report   ?? true,
       })
     })
   }, [])
@@ -182,13 +197,13 @@ export default function SettingsPage() {
         {/* ── إعدادات النظام ── */}
         <Section title="إعدادات النظام" color="#7c3aed" icon={Globe}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-            <SelectField label="اللغة الافتراضية" value="ar" onChange={() => {}}
+            <SelectField label="اللغة الافتراضية" value={form.language} onChange={set('language')}
               options={[['ar','العربية'],['en','English']]} />
-            <SelectField label="المنطقة الزمنية" value="Asia/Riyadh" onChange={() => {}}
+            <SelectField label="المنطقة الزمنية" value={form.timezone} onChange={set('timezone')}
               options={[['Asia/Riyadh','توقيت الرياض (GMT+3)'],['Africa/Cairo','توقيت القاهرة (GMT+2)'],['Asia/Dubai','توقيت دبي (GMT+4)']]} />
-            <SelectField label="بداية أسبوع العمل" value="sunday" onChange={() => {}}
+            <SelectField label="بداية أسبوع العمل" value={form.week_start} onChange={set('week_start')}
               options={[['sunday','الأحد'],['monday','الاثنين']]} />
-            <SelectField label="تنسيق التاريخ" value="ar-SA" onChange={() => {}}
+            <SelectField label="تنسيق التاريخ" value={form.date_format} onChange={set('date_format')}
               options={[['ar-SA','هجري (١٤٤٦/٠١/٠١)'],['en-GB','ميلادي (01/01/2025)']]} />
           </div>
         </Section>
@@ -201,23 +216,25 @@ export default function SettingsPage() {
         {/* ── الإشعارات ── */}
         <Section title="الإشعارات" color="#d97706" icon={Bell}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
-            {[
-              'إشعار عند تقديم طلب إجازة جديد',
-              'إشعار عند الموافقة على الإجازة',
-              'تذكير بمواعيد الرواتب',
-              'إشعار عند إضافة موظف جديد',
-              'تنبيه انتهاء صلاحية الوثائق',
-              'تقرير أسبوعي للحضور',
-            ].map(item => (
-              <label key={item} style={{
+            {([
+              ['notify_leave_request',   'إشعار عند تقديم طلب إجازة جديد'],
+              ['notify_leave_approved',  'إشعار عند الموافقة على الإجازة'],
+              ['notify_payroll',         'تذكير بمواعيد الرواتب'],
+              ['notify_new_employee',    'إشعار عند إضافة موظف جديد'],
+              ['notify_document_expiry', 'تنبيه انتهاء صلاحية الوثائق'],
+              ['notify_weekly_report',   'تقرير أسبوعي للحضور'],
+            ] as [keyof typeof form, string][]).map(([key, label]) => (
+              <label key={key} style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '10px 12px', borderRadius: 10, cursor: 'pointer'
               }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#f8fafc')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
               >
-                <input type="checkbox" defaultChecked style={{ width: 16, height: 16, accentColor: '#2563eb', flexShrink: 0 }} />
-                <span style={{ fontSize: 13, color: '#334155' }}>{item}</span>
+                <input type="checkbox" checked={!!form[key]}
+                  onChange={e => setForm(f => ({ ...f, [key]: e.target.checked }))}
+                  style={{ width: 16, height: 16, accentColor: '#2563eb', flexShrink: 0 }} />
+                <span style={{ fontSize: 13, color: '#334155' }}>{label}</span>
               </label>
             ))}
           </div>

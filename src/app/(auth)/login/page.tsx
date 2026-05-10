@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { Users, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
 
-const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'
+const version = process.env.NEXT_PUBLIC_APP_VERSION || process.env.NEXT_PUBLIC_COMMIT_HASH || '1.0.0'
 
 export default function LoginPage() {
   const [email, setEmail]       = useState('')

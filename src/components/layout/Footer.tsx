@@ -1,8 +1,8 @@
-'use client'
-
 export function Footer() {
-  const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'
-  const year    = new Date().getFullYear()
+  const version    = process.env.NEXT_PUBLIC_APP_VERSION
+  const commitHash = process.env.NEXT_PUBLIC_COMMIT_HASH
+  const display    = version || commitHash || '1.0.0'
+  const year       = new Date().getFullYear()
 
   return (
     <footer style={{
@@ -29,7 +29,7 @@ export function Footer() {
           background: '#f8fafc', border: '1px solid #e2e8f0',
           padding: '3px 9px', borderRadius: 6, fontFamily: 'monospace',
         }}>
-          ⎇ v{version}
+          ⎇ v{display}
         </span>
       </div>
     </footer>
