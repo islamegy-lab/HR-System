@@ -63,28 +63,24 @@ export function Sidebar() {
     <aside style={{ width: 240, background: '#0f172a', minHeight: '100vh', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
 
       {/* Logo */}
-      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Logo or Icon */}
-          <div style={{
-            width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-            background: company?.logo_url ? '#fff' : 'linear-gradient(135deg,#2563eb,#60a5fa)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(37,99,235,0.4)', overflow: 'hidden'
-          }}>
-            {company?.logo_url
-              ? <img src={company.logo_url} style={{ width: 40, height: 40, objectFit: 'contain' }} alt="logo" />
-              : <Users size={20} color="#fff" />}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ color: '#fff', fontSize: 13, fontWeight: 700, lineHeight: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {company?.name_ar || 'نظام HR'}
-            </p>
-            <p style={{ color: '#60a5fa', fontSize: 10, marginTop: 3 }}>الموارد البشرية</p>
-            <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: 9, marginTop: 3 }}>
-              بواسطة <span style={{ color: '#60a5fa', fontWeight: 700 }}>دُكَّانِي</span>
-            </p>
-          </div>
+      <div style={{ padding: '24px 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: 16, flexShrink: 0,
+          background: company?.logo_url ? '#fff' : 'linear-gradient(135deg,#2563eb,#60a5fa)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 16px rgba(37,99,235,0.4)', overflow: 'hidden'
+        }}>
+          {company?.logo_url
+            ? <img src={company.logo_url} style={{ width: 56, height: 56, objectFit: 'contain' }} alt="logo" />
+            : <Users size={26} color="#fff" />}
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: '#fff', fontSize: 14, fontWeight: 800, lineHeight: 1.3 }}>
+            {company?.name_ar || 'نظام HR'}
+          </p>
+          <p style={{ color: 'rgba(148,163,184,0.6)', fontSize: 10, marginTop: 5 }}>
+            مشغّل بواسطة <span style={{ color: '#60a5fa', fontWeight: 700 }}>دُكَّانِي</span>
+          </p>
         </div>
       </div>
 
