@@ -22,6 +22,7 @@ interface FormState {
   // بيانات وظيفية
   department_id: string; job_position_id: string
   hire_date: string; contract_type: ContractType; status: EmployeeStatus
+  role: string
   // الراتب
   basic_salary: string
   housing_allowance: string
@@ -109,6 +110,7 @@ export function EmployeeForm({ employee, onSave, onCancel }: Props) {
     hire_date: employee?.hire_date || '',
     contract_type: employee?.contract_type || 'full_time',
     status: employee?.status || 'active',
+    role: (employee as any)?.role || 'employee',
     basic_salary: employee?.basic_salary?.toString() || '',
     housing_allowance: '',
     transport_allowance: '',
@@ -186,7 +188,7 @@ export function EmployeeForm({ employee, onSave, onCancel }: Props) {
     }
     setSaving(true); setApiError('')
 
-    const payload = {
+    const payload: any = {
       ...form,
       basic_salary:        form.basic_salary        ? Number(form.basic_salary)        : undefined,
       housing_allowance:   form.housing_allowance   ? Number(form.housing_allowance)   : undefined,
@@ -304,6 +306,13 @@ export function EmployeeForm({ employee, onSave, onCancel }: Props) {
             options={[
               { value: 'active',   label: 'نشط' }, { value: 'inactive', label: 'غير نشط' },
               { value: 'on_leave', label: 'في إجازة' },
+            ]} />
+          <Select label="الدور والصلاحيات" value={form.role} onChange={set('role')}
+            options={[
+              { value: 'employee',   label: 'موظف — بوابة الموظف فقط' },
+              { value: 'manager',    label: 'مدير قسم — صلاحيات الإدارة' },
+              { value: 'hr_manager', label: 'مدير موارد بشرية — صلاحيات كاملة' },
+              { value: 'admin',      label: 'مدير النظام — وصول كامل' },
             ]} />
         </div>
       )}

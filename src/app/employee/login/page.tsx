@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Clock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
 import { authApi } from '@/lib/api'
+import { supabase } from '@/lib/supabase'
+import { ADMIN_ROLES } from '@/lib/EmployeeAuthContext'
 
 export default function EmployeeLoginPage() {
   const router = useRouter()
@@ -16,9 +18,28 @@ export default function EmployeeLoginPage() {
     e.preventDefault()
     if (!email || !password) { setError('يرجى إدخال البريد وكلمة المرور'); return }
     setLoading(true); setError('')
+
     const { error: err, data } = await authApi.signIn(email, password)
-    if (err || !data.user) { setError('البريد أو كلمة المرور غير صحيحة'); setLoading(false); return }
-    router.push('/employee')
+    if (err || !data.user) {
+      setError('البريد أو كلمة المرور غير صحيحة')
+      setLoading(false); return
+    }
+
+    // جلب دور الموظف من قاعدة البيانات
+    const { data: emp } = await supabase
+      .from('employees')
+      .select('role')
+      .eq('user_id', data.user.id)
+      .single()
+
+    const role = emp?.role || 'employee'
+
+    // توجيه حسب الدور
+    if (ADMIN_ROLES.includes(role)) {
+      router.push('/dashboard')
+    } else {
+      router.push('/employee')
+    }
     router.refresh()
   }
 
@@ -51,6 +72,7 @@ export default function EmployeeLoginPage() {
                 <span style={{ fontSize: 12, color: '#f87171' }}>{error}</span>
               </div>
             )}
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>البريد الإلكتروني</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="example@company.com"
@@ -59,6 +81,7 @@ export default function EmployeeLoginPage() {
                 onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.12)'}
               />
             </div>
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>كلمة المرور</label>
               <div style={{ position: 'relative' }}>
@@ -72,8 +95,15 @@ export default function EmployeeLoginPage() {
                 </button>
               </div>
             </div>
-            <button type="submit" disabled={loading} style={{ marginTop: 4, padding: '12px 0', borderRadius: 11, fontSize: 14, fontWeight: 700, background: loading ? 'rgba(37,99,235,0.4)' : 'linear-gradient(135deg,#2563eb,#3b82f6)', color: '#fff', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'Cairo, sans-serif' }}>
-              {loading ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> جاري الدخول...</> : 'دخول'}
+
+            <button type="submit" disabled={loading} style={{
+              marginTop: 4, padding: '12px 0', borderRadius: 11, fontSize: 14, fontWeight: 700,
+              background: loading ? 'rgba(37,99,235,0.4)' : 'linear-gradient(135deg,#2563eb,#3b82f6)',
+              color: '#fff', border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              fontFamily: 'Cairo, sans-serif', boxShadow: loading ? 'none' : '0 4px 14px rgba(37,99,235,0.35)'
+            }}>
+              {loading ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> جاري التحقق...</> : 'دخول'}
             </button>
           </form>
         </div>

@@ -13,6 +13,9 @@ interface EmployeeAuthCtx {
 
 const Ctx = createContext<EmployeeAuthCtx>({ employee: null, loading: true, signOut: async () => {} })
 
+// الأدوار التي تملك صلاحية الإدارة
+export const ADMIN_ROLES = ['admin', 'hr_manager', 'manager']
+
 export function EmployeeAuthProvider({ children }: { children: React.ReactNode }) {
   const [employee, setEmployee] = useState<Employee | null>(null)
   const [loading, setLoading]   = useState(true)
@@ -22,8 +25,12 @@ export function EmployeeAuthProvider({ children }: { children: React.ReactNode }
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setLoading(false); return }
+
       const { data } = await authApi.getEmployeeByUserId(user.id)
-      if (data) setEmployee(data as Employee)
+      if (data) {
+        const emp = data as Employee & { role?: string }
+        setEmployee(emp)
+      }
       setLoading(false)
     }
     load()

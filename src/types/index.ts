@@ -35,7 +35,8 @@ export interface Employee {
   marital_status?: string; nationality?: string; address?: string; photo_url?: string
   department_id?: string; job_position_id?: string; manager_id?: string
   hire_date: string; contract_type: ContractType; status: EmployeeStatus
-  basic_salary?: number; user_id?: string; created_at: string; updated_at: string
+  basic_salary?: number; user_id?: string; role?: 'admin' | 'hr_manager' | 'manager' | 'employee'
+  created_at: string; updated_at: string
   department?: Department; job_position?: JobPosition; manager?: Employee
 }
 
