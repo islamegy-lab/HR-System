@@ -3,8 +3,10 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Users, Clock, CalendarDays, DollarSign,
-  Briefcase, GraduationCap, BarChart3, Settings, Building2, LogOut, FileText, MapPin
+  Briefcase, GraduationCap, BarChart3, Settings, Building2, LogOut, FileText, MapPin, UserCircle
 } from 'lucide-react'
+import { authApi } from '@/lib/api'
+import { useRouter } from 'next/navigation'
 
 const NAV = [
   {
@@ -42,6 +44,13 @@ const NAV = [
 
 export function Sidebar() {
   const path = usePathname()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await authApi.signOut()
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <aside style={{ width: 240, background: '#0f172a', minHeight: '100vh', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
@@ -128,17 +137,19 @@ export function Sidebar() {
           padding: '10px 12px', borderRadius: 12,
           background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)'
         }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-            background: 'linear-gradient(135deg,#2563eb,#60a5fa)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', fontSize: 13, fontWeight: 700
-          }}>م</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ color: '#f1f5f9', fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>مدير النظام</p>
-            <p style={{ color: '#64748b', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>admin@hr.com</p>
-          </div>
-          <button style={{ color: '#64748b', background: 'none', border: 'none', cursor: 'pointer', padding: 4, borderRadius: 6 }}
+          <Link href="/profile" style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, textDecoration: 'none' }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+              background: 'linear-gradient(135deg,#2563eb,#60a5fa)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#fff', fontSize: 13, fontWeight: 700
+            }}>م</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ color: '#f1f5f9', fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>مدير النظام</p>
+              <p style={{ color: '#64748b', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>الملف الشخصي</p>
+            </div>
+          </Link>
+          <button onClick={handleLogout} style={{ color: '#64748b', background: 'none', border: 'none', cursor: 'pointer', padding: 4, borderRadius: 6 }}
             onMouseEnter={e => (e.currentTarget.style.color = '#f87171')}
             onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}>
             <LogOut size={14} />
