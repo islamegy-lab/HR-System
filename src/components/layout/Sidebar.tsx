@@ -55,7 +55,7 @@ export function Sidebar() {
   }, [])
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
+    await authApi.signOut()
     window.location.href = '/login'
   }
 
