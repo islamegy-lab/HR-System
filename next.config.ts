@@ -1,13 +1,16 @@
 import type { NextConfig } from 'next'
-import { execSync } from 'child_process'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
+// قراءة الإصدار مباشرة من package.json في وقت البناء
+const pkg = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf8'))
+const version = pkg.version
+
+// قراءة الـ commit hash
 const run = (cmd: string, fallback: string) => {
-  try { return execSync(cmd).toString().trim() } catch { return fallback }
+  try { return require('child_process').execSync(cmd).toString().trim() } catch { return fallback }
 }
-
-const commitHash  = run('git rev-parse --short HEAD', 'dev')
-const commitCount = run('git rev-list --count HEAD', '0')
-const version     = `1.0.${commitCount}`  // يزيد تلقائياً مع كل commit
+const commitHash = run('git rev-parse --short HEAD', 'dev')
 
 const nextConfig: NextConfig = {
   env: {
