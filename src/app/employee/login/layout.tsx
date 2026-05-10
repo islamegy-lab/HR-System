@@ -1,3 +1,7 @@
 export default function EmployeeLoginLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'Cairo, sans-serif' }}>
+      {children}
+    </div>
+  )
 }
