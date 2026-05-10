@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     const { data: employee, error: empError } = await adminSupabase
       .from('employees')
       .insert(cleanEmployee)
-      .select('*, department:departments(id,name,name_ar), job_position:job_positions(id,title,title_ar)')
+      .select('*, department:departments!department_id(id,name,name_ar), job_position:job_positions!job_position_id(id,title,title_ar)')
       .single()
 
     if (empError) {

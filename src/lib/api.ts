@@ -6,7 +6,7 @@ export const employeesApi = {
   getAll: async (filters?: { department_id?: string; status?: string; search?: string }) => {
     let query = supabase
       .from('employees')
-      .select('*, department:departments(id,name,name_ar), job_position:job_positions(id,title,title_ar)')
+      .select('*, department:departments!department_id(id,name,name_ar), job_position:job_positions!job_position_id(id,title,title_ar)')
       .order('created_at', { ascending: false })
     if (filters?.department_id) query = query.eq('department_id', filters.department_id)
     if (filters?.status) query = query.eq('status', filters.status)
@@ -14,7 +14,7 @@ export const employeesApi = {
     return query
   },
   getById: async (id: string) =>
-    supabase.from('employees').select('*, department:departments(*), job_position:job_positions(*), manager:employees!manager_id(id,first_name,last_name)').eq('id', id).single(),
+    supabase.from('employees').select('*, department:departments!department_id(*), job_position:job_positions!job_position_id(*), manager:employees!manager_id(id,first_name,last_name)').eq('id', id).single(),
   create: async (data: Partial<Employee>) =>
     supabase.from('employees').insert(data).select().single(),
   update: async (id: string, data: Partial<Employee>) =>
@@ -70,7 +70,7 @@ export const payrollApi = {
   getAll: async (filters?: { month?: number; year?: number; status?: string }) => {
     let query = supabase
       .from('payroll')
-      .select('*, employee:employees(id,first_name,last_name,employee_number,department:departments(name_ar))')
+      .select('*, employee:employees!employee_id(id,first_name,last_name,employee_number,department:departments!department_id(name_ar))')
       .order('created_at', { ascending: false })
     if (filters?.month) query = query.eq('month', filters.month)
     if (filters?.year) query = query.eq('year', filters.year)
@@ -129,7 +129,7 @@ export const documentsApi = {
 // RECRUITMENT
 export const recruitmentApi = {
   getJobs: async () =>
-    supabase.from('recruitment_jobs').select('*, department:departments(name,name_ar)').order('created_at', { ascending: false }),
+    supabase.from('recruitment_jobs').select('*, department:departments!department_id(name,name_ar)').order('created_at', { ascending: false }),
   createJob: async (data: object) =>
     supabase.from('recruitment_jobs').insert(data).select().single(),
   updateJob: async (id: string, data: object) =>
@@ -164,7 +164,7 @@ export const authApi = {
   getUser: async () =>
     supabase.auth.getUser(),
   getEmployeeByUserId: async (userId: string) =>
-    supabase.from('employees').select('*, department:departments(id,name,name_ar), job_position:job_positions(id,title,title_ar)').eq('user_id', userId).single(),
+    supabase.from('employees').select('*, department:departments!department_id(id,name,name_ar), job_position:job_positions!job_position_id(id,title,title_ar)').eq('user_id', userId).single(),
 }
 
 // STORAGE UPLOAD HELPERS
