@@ -19,7 +19,7 @@ export default function LoginPage() {
     setLoading(true); setError('')
     const { error: err } = await authApi.signIn(email, password)
     if (err) { setError('البريد الإلكتروني أو كلمة المرور غير صحيحة'); setLoading(false) }
-    else { router.replace('/dashboard') }
+    else { window.location.href = '/dashboard' }
   }
 
   return (
