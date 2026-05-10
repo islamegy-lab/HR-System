@@ -9,11 +9,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants = {
-  primary: 'bg-brand-600 hover:bg-brand-700 text-white shadow-sm',
-  outline:  'border border-surface-200 hover:bg-surface-50 text-gray-600',
-  ghost:    'hover:bg-surface-100 text-gray-500',
-  danger:   'bg-red-600 hover:bg-red-700 text-white',
-  success:  'bg-green-600 hover:bg-green-700 text-white',
+  primary: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm',
+  outline: 'border border-gray-200 hover:bg-gray-50 text-gray-600',
+  ghost:   'hover:bg-gray-100 text-gray-500',
+  danger:  'bg-red-600 hover:bg-red-700 text-white',
+  success: 'bg-green-600 hover:bg-green-700 text-white',
 }
 
 const sizes = {
@@ -22,15 +22,11 @@ const sizes = {
   lg: 'px-5 py-2.5 text-sm',
 }
 
-export function Button({
-  children, variant = 'primary', size = 'md',
-  loading, icon, className, disabled, ...props
-}: ButtonProps) {
+export function Button({ children, variant = 'primary', size = 'md', loading, icon, className, disabled, ...props }: ButtonProps) {
   return (
     <button
       className={cn(
-        'inline-flex items-center gap-1.5 font-semibold rounded-lg transition-all',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
+        'inline-flex items-center gap-1.5 font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed',
         variants[variant], sizes[size], className
       )}
       disabled={disabled || loading}

@@ -28,9 +28,7 @@ export default function AttendancePage() {
   }, [date])
 
   useEffect(() => { load() }, [load])
-  useEffect(() => {
-    employeesApi.getAll({ status: 'active' }).then(({ data }) => { if (data) setEmployees(data as Employee[]) })
-  }, [])
+  useEffect(() => { employeesApi.getAll({ status: 'active' }).then(({ data }) => { if (data) setEmployees(data as Employee[]) }) }, [])
 
   const handleSave = async () => {
     setSaving(true)
@@ -46,89 +44,57 @@ export default function AttendancePage() {
   const late    = records.filter(r => r.status === 'late').length
 
   return (
-    <div className="page-wrapper">
-      <Topbar
-        title="الحضور والانصراف"
-        subtitle={new Date(date).toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        actions={<Button size="sm" icon={<Plus size={14} />} onClick={() => setShowForm(true)}>تسجيل حضور</Button>}
-      />
+    <div className="min-h-screen bg-gray-50">
+      <Topbar title="الحضور والانصراف" subtitle={new Date(date).toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        actions={<Button size="sm" icon={<Plus size={14} />} onClick={() => setShowForm(true)}>تسجيل حضور</Button>} />
 
       <div className="p-6 space-y-4">
-
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {[
             { label: 'حاضر',  value: present, icon: CheckCircle, bg: 'bg-green-50',  ic: 'text-green-600' },
             { label: 'غائب',  value: absent,  icon: XCircle,     bg: 'bg-red-50',    ic: 'text-red-600' },
             { label: 'متأخر', value: late,    icon: Clock,       bg: 'bg-yellow-50', ic: 'text-yellow-600' },
           ].map(s => (
-            <div key={s.label} className="stat-card">
-              <div className={`stat-icon ${s.bg}`}><s.icon size={20} className={s.ic} /></div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{s.value}</p>
-                <p className="text-xs font-semibold text-gray-600">{s.label}</p>
-              </div>
+            <div key={s.label} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-4">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${s.bg}`}><s.icon size={20} className={s.ic} /></div>
+              <div><p className="text-2xl font-bold text-gray-900">{s.value}</p><p className="text-xs font-semibold text-gray-600">{s.label}</p></div>
             </div>
           ))}
         </div>
 
-        {/* Date Filter */}
-        <div className="filter-bar">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 flex items-center gap-3">
           <label className="text-xs font-semibold text-gray-500">التاريخ</label>
           <input type="date" value={date} onChange={e => setDate(e.target.value)}
-            className="form-input w-auto" />
-          <button onClick={() => setDate(today)} className="text-xs text-brand-600 hover:underline">اليوم</button>
+            className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+          <button onClick={() => setDate(today)} className="text-xs text-indigo-600 hover:underline">اليوم</button>
         </div>
 
-        {/* Table */}
-        <div className="table-wrapper">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
           <table className="w-full">
-            <thead className="table-head">
-              <tr>
-                {['الموظف', 'التاريخ', 'وقت الحضور', 'وقت الانصراف', 'ساعات العمل', 'الحالة', 'ملاحظات'].map(h => (
-                  <th key={h} className="table-th">{h}</th>
-                ))}
-              </tr>
+            <thead className="bg-gray-50 border-b border-gray-100">
+              <tr>{['الموظف', 'التاريخ', 'وقت الحضور', 'وقت الانصراف', 'ساعات العمل', 'الحالة', 'ملاحظات'].map(h => (
+                <th key={h} className="text-right text-xs font-semibold text-gray-500 px-5 py-3">{h}</th>
+              ))}</tr>
             </thead>
-            <tbody>
-              {loading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <tr key={i} className="border-b border-surface-100">
-                    <td colSpan={7} className="px-4 py-3"><div className="h-6 bg-surface-100 rounded animate-pulse" /></td>
-                  </tr>
-                ))
-              ) : records.length === 0 ? (
-                <tr><td colSpan={7}>
-                  <div className="empty-state">
-                    <Clock size={32} className="mb-2 opacity-20" />
-                    <p className="text-sm">لا توجد سجلات لهذا اليوم</p>
-                  </div>
-                </td></tr>
+            <tbody className="divide-y divide-gray-50">
+              {loading ? Array.from({ length: 4 }).map((_, i) => (
+                <tr key={i}><td colSpan={7} className="px-5 py-3"><div className="h-6 bg-gray-100 rounded animate-pulse" /></td></tr>
+              )) : records.length === 0 ? (
+                <tr><td colSpan={7}><div className="flex flex-col items-center justify-center py-14 text-gray-400"><Clock size={32} className="mb-2 opacity-20" /><p className="text-sm">لا توجد سجلات لهذا اليوم</p></div></td></tr>
               ) : records.map(r => (
-                <tr key={r.id} className="table-row">
-                  <td className="table-td">
+                <tr key={r.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-5 py-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="avatar w-8 h-8 text-sm">{r.employee?.first_name?.[0]}</div>
-                      <div>
-                        <p className="font-semibold text-gray-900">{r.employee?.first_name} {r.employee?.last_name}</p>
-                        <p className="text-xs text-gray-400">{r.employee?.employee_number}</p>
-                      </div>
+                      <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 text-xs font-bold">{r.employee?.first_name?.[0]}</div>
+                      <div><p className="text-sm font-semibold text-gray-900">{r.employee?.first_name} {r.employee?.last_name}</p><p className="text-xs text-gray-400">{r.employee?.employee_number}</p></div>
                     </div>
                   </td>
-                  <td className="table-td text-gray-500">{r.date}</td>
-                  <td className="table-td font-semibold text-gray-800">
-                    {r.check_in ? new Date(r.check_in).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : <span className="text-gray-300">—</span>}
-                  </td>
-                  <td className="table-td font-semibold text-gray-800">
-                    {r.check_out ? new Date(r.check_out).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : <span className="text-gray-300">—</span>}
-                  </td>
-                  <td className="table-td">
-                    {r.work_hours ? <span className="font-bold text-brand-600">{r.work_hours.toFixed(1)}<span className="text-xs font-normal text-gray-400 mr-1">س</span></span> : <span className="text-gray-300">—</span>}
-                  </td>
-                  <td className="table-td">
-                    <span className={`badge ${getStatusColor(r.status)}`}>{getStatusLabel(r.status)}</span>
-                  </td>
-                  <td className="table-td text-gray-400 text-xs">{r.notes || '—'}</td>
+                  <td className="px-5 py-3 text-sm text-gray-500">{r.date}</td>
+                  <td className="px-5 py-3 text-sm font-semibold text-gray-800">{r.check_in ? new Date(r.check_in).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : <span className="text-gray-300">—</span>}</td>
+                  <td className="px-5 py-3 text-sm font-semibold text-gray-800">{r.check_out ? new Date(r.check_out).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : <span className="text-gray-300">—</span>}</td>
+                  <td className="px-5 py-3">{r.work_hours ? <span className="text-sm font-bold text-indigo-600">{r.work_hours.toFixed(1)}<span className="text-xs font-normal text-gray-400 mr-1">س</span></span> : <span className="text-gray-300 text-sm">—</span>}</td>
+                  <td className="px-5 py-3"><span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(r.status)}`}>{getStatusLabel(r.status)}</span></td>
+                  <td className="px-5 py-3 text-xs text-gray-400">{r.notes || '—'}</td>
                 </tr>
               ))}
             </tbody>
@@ -138,15 +104,13 @@ export default function AttendancePage() {
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title="تسجيل حضور" size="md">
         <div className="space-y-4">
-          <Select label="الموظف *" value={form.employee_id} onChange={e => setForm(f => ({ ...f, employee_id: e.target.value }))}
-            options={employees.map(e => ({ value: e.id, label: `${e.first_name} ${e.last_name}` }))} />
+          <Select label="الموظف *" value={form.employee_id} onChange={e => setForm(f => ({ ...f, employee_id: e.target.value }))} options={employees.map(e => ({ value: e.id, label: `${e.first_name} ${e.last_name}` }))} />
           <Input label="التاريخ" type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
           <div className="grid grid-cols-2 gap-3">
             <Input label="وقت الحضور" type="time" value={form.check_in} onChange={e => setForm(f => ({ ...f, check_in: e.target.value }))} />
             <Input label="وقت الانصراف" type="time" value={form.check_out} onChange={e => setForm(f => ({ ...f, check_out: e.target.value }))} />
           </div>
-          <Select label="الحالة" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-            options={[{ value: 'present', label: 'حاضر' }, { value: 'absent', label: 'غائب' }, { value: 'late', label: 'متأخر' }, { value: 'half_day', label: 'نصف يوم' }]} />
+          <Select label="الحالة" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} options={[{ value: 'present', label: 'حاضر' }, { value: 'absent', label: 'غائب' }, { value: 'late', label: 'متأخر' }, { value: 'half_day', label: 'نصف يوم' }]} />
           <div className="flex gap-2 justify-end pt-2">
             <Button variant="outline" onClick={() => setShowForm(false)}>إلغاء</Button>
             <Button loading={saving} onClick={handleSave}>حفظ</Button>
