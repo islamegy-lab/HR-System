@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { attendanceApi, companyApi } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
+import { useCompany } from '@/lib/CompanyContext'
 import type { AttendanceLocation, CompanySettings } from '@/types'
 
 // ─── Section Card ────────────────────────────────────────────────

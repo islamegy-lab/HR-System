@@ -4,7 +4,8 @@ import { Users, Clock, CalendarDays, DollarSign, Briefcase, UserCheck, TrendingU
 import { Topbar } from '@/components/layout/Topbar'
 import { dashboardApi, leavesApi } from '@/lib/api'
 import type { DashboardStats, LeaveRequest } from '@/types'
-import { getStatusColor, getStatusLabel, formatCurrency, formatDate } from '@/lib/utils'
+import { getStatusColor, getStatusLabel, formatDate } from '@/lib/utils'
+import { useCurrency } from '@/lib/useCurrency'
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend
@@ -46,6 +47,7 @@ const S = {
 }
 
 export default function DashboardPage() {
+  const { format: formatCurrency } = useCurrency()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [leaves, setLeaves] = useState<LeaveRequest[]>([])
   const [loading, setLoading] = useState(true)

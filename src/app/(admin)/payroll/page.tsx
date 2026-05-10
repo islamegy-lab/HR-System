@@ -5,7 +5,8 @@ import { Topbar } from '@/components/layout/Topbar'
 import { Button } from '@/components/ui/Button'
 import { CardHeader, StatCard, Avatar, EmptyState, pageStyle, bodyStyle, cardStyle, thStyle, tdStyle } from '@/components/ui/PageComponents'
 import { payrollApi } from '@/lib/api'
-import { getStatusColor, getStatusLabel, formatCurrency } from '@/lib/utils'
+import { getStatusColor, getStatusLabel } from '@/lib/utils'
+import { useCurrency } from '@/lib/useCurrency'
 import type { Payroll } from '@/types'
 
 const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
@@ -14,6 +15,7 @@ export default function PayrollPage() {
   const [payrolls, setPayrolls] = useState<Payroll[]>([])
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
+  const { format: formatCurrency } = useCurrency()
   const now = new Date()
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [year, setYear] = useState(now.getFullYear())

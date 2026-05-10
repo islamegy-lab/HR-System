@@ -1,14 +1,21 @@
 'use client'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Printer, X } from 'lucide-react'
 import { payrollApi, companyApi } from '@/lib/api'
-import { formatCurrency } from '@/lib/utils'
 import type { Payroll, CompanySettings } from '@/types'
 
 const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
 
 export default function PayrollPrintPage() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Cairo, sans-serif' }}><p>جاري التحميل...</p></div>}>
+      <PrintContent />
+    </Suspense>
+  )
+}
+
+function PrintContent() {
   const params  = useSearchParams()
   const month   = Number(params.get('month')) || new Date().getMonth() + 1
   const year    = Number(params.get('year'))  || new Date().getFullYear()
@@ -16,6 +23,7 @@ export default function PayrollPrintPage() {
   const [payrolls, setPayrolls] = useState<Payroll[]>([])
   const [company,  setCompany]  = useState<CompanySettings | null>(null)
   const [loading,  setLoading]  = useState(true)
+  const [currency, setCurrency] = useState('SAR')
 
   useEffect(() => {
     Promise.all([
@@ -23,10 +31,21 @@ export default function PayrollPrintPage() {
       companyApi.get(),
     ]).then(([p, c]) => {
       if (p.data) setPayrolls(p.data as Payroll[])
-      if (c.data) setCompany(c.data as CompanySettings)
+      if (c.data) {
+        setCompany(c.data as CompanySettings)
+        setCurrency((c.data as CompanySettings).currency || 'SAR')
+      }
       setLoading(false)
     })
   }, [month, year])
+
+  const fmt = (amount: number) => {
+    try {
+      return new Intl.NumberFormat('ar-SA', { style: 'currency', currency, minimumFractionDigits: 0 }).format(amount)
+    } catch {
+      return `${amount.toLocaleString('ar-SA')} ${currency}`
+    }
+  }
 
   const totalBasic     = payrolls.reduce((s, p) => s + p.basic_salary, 0)
   const totalHousing   = payrolls.reduce((s, p) => s + (p.housing_allowance || 0), 0)
@@ -103,9 +122,9 @@ export default function PayrollPrintPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 28 }}>
           {[
             { label: 'عدد الموظفين', value: payrolls.length },
-            { label: 'إجمالي الرواتب الأساسية', value: formatCurrency(totalBasic) },
-            { label: 'إجمالي البدلات', value: formatCurrency(totalHousing + totalTransport + totalOther) },
-            { label: 'إجمالي الصافي', value: formatCurrency(totalNet), highlight: true },
+            { label: 'إجمالي الرواتب الأساسية', value: fmt(totalBasic) },
+            { label: 'إجمالي البدلات', value: fmt(totalHousing + totalTransport + totalOther) },
+            { label: 'إجمالي الصافي', value: fmt(totalNet), highlight: true },
           ].map(s => (
             <div key={s.label} style={{
               padding: '12px 16px', borderRadius: 10,
@@ -136,14 +155,14 @@ export default function PayrollPrintPage() {
                 </td>
                 <td style={{ padding: '9px 8px', fontFamily: 'monospace', color: '#64748b', fontSize: 11 }}>{p.employee?.employee_number}</td>
                 <td style={{ padding: '9px 8px', color: '#64748b' }}>{(p.employee as any)?.department?.name_ar || '—'}</td>
-                <td style={{ padding: '9px 8px', fontWeight: 600 }}>{formatCurrency(p.basic_salary)}</td>
-                <td style={{ padding: '9px 8px', color: '#2563eb' }}>{formatCurrency(p.housing_allowance)}</td>
-                <td style={{ padding: '9px 8px', color: '#2563eb' }}>{formatCurrency(p.transport_allowance)}</td>
-                <td style={{ padding: '9px 8px', color: '#2563eb' }}>{formatCurrency(p.other_allowances)}</td>
-                <td style={{ padding: '9px 8px', color: '#16a34a', fontWeight: 600 }}>{formatCurrency(p.overtime_pay)}</td>
-                <td style={{ padding: '9px 8px', color: '#e11d48' }}>{formatCurrency(p.deductions)}</td>
-                <td style={{ padding: '9px 8px', color: '#e11d48' }}>{formatCurrency(p.tax)}</td>
-                <td style={{ padding: '9px 8px', fontWeight: 800, color: '#1d4ed8', fontSize: 13 }}>{formatCurrency(p.net_salary)}</td>
+                <td style={{ padding: '9px 8px', fontWeight: 600 }}>{fmt(p.basic_salary)}</td>
+                <td style={{ padding: '9px 8px', color: '#2563eb' }}>{fmt(p.housing_allowance)}</td>
+                <td style={{ padding: '9px 8px', color: '#2563eb' }}>{fmt(p.transport_allowance)}</td>
+                <td style={{ padding: '9px 8px', color: '#2563eb' }}>{fmt(p.other_allowances)}</td>
+                <td style={{ padding: '9px 8px', color: '#16a34a', fontWeight: 600 }}>{fmt(p.overtime_pay)}</td>
+                <td style={{ padding: '9px 8px', color: '#e11d48' }}>{fmt(p.deductions)}</td>
+                <td style={{ padding: '9px 8px', color: '#e11d48' }}>{fmt(p.tax)}</td>
+                <td style={{ padding: '9px 8px', fontWeight: 800, color: '#1d4ed8', fontSize: 13 }}>{fmt(p.net_salary)}</td>
                 <td style={{ padding: '9px 8px' }}>
                   <span style={{
                     fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 99,
@@ -160,14 +179,14 @@ export default function PayrollPrintPage() {
           <tfoot>
             <tr style={{ background: '#1e3a8a', color: '#fff', fontWeight: 700 }}>
               <td colSpan={4} style={{ padding: '11px 8px', fontSize: 13 }}>الإجمالي</td>
-              <td style={{ padding: '11px 8px' }}>{formatCurrency(totalBasic)}</td>
-              <td style={{ padding: '11px 8px' }}>{formatCurrency(totalHousing)}</td>
-              <td style={{ padding: '11px 8px' }}>{formatCurrency(totalTransport)}</td>
-              <td style={{ padding: '11px 8px' }}>{formatCurrency(totalOther)}</td>
-              <td style={{ padding: '11px 8px' }}>{formatCurrency(totalOvertime)}</td>
-              <td style={{ padding: '11px 8px' }}>{formatCurrency(totalDeduct)}</td>
-              <td style={{ padding: '11px 8px' }}>{formatCurrency(totalTax)}</td>
-              <td style={{ padding: '11px 8px', fontSize: 15 }}>{formatCurrency(totalNet)}</td>
+              <td style={{ padding: '11px 8px' }}>{fmt(totalBasic)}</td>
+              <td style={{ padding: '11px 8px' }}>{fmt(totalHousing)}</td>
+              <td style={{ padding: '11px 8px' }}>{fmt(totalTransport)}</td>
+              <td style={{ padding: '11px 8px' }}>{fmt(totalOther)}</td>
+              <td style={{ padding: '11px 8px' }}>{fmt(totalOvertime)}</td>
+              <td style={{ padding: '11px 8px' }}>{fmt(totalDeduct)}</td>
+              <td style={{ padding: '11px 8px' }}>{fmt(totalTax)}</td>
+              <td style={{ padding: '11px 8px', fontSize: 15 }}>{fmt(totalNet)}</td>
               <td />
             </tr>
           </tfoot>
