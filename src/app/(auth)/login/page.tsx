@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Users, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
 
 const version = process.env.NEXT_PUBLIC_APP_VERSION || process.env.NEXT_PUBLIC_COMMIT_HASH || '1.0.0'
@@ -10,6 +10,14 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState('')
+  const [version, setVersion]   = useState('...')
+
+  useEffect(() => {
+    fetch('/api/version')
+      .then(r => r.json())
+      .then(d => setVersion(d.version || d.commit || '1.0.0'))
+      .catch(() => setVersion('1.0.0'))
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()

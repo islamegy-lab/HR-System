@@ -1,8 +1,16 @@
+'use client'
+import { useEffect, useState } from 'react'
+
 export function Footer() {
-  const version    = process.env.NEXT_PUBLIC_APP_VERSION
-  const commitHash = process.env.NEXT_PUBLIC_COMMIT_HASH
-  const display    = version || commitHash || '1.0.0'
-  const year       = new Date().getFullYear()
+  const [version, setVersion] = useState('...')
+  const year = new Date().getFullYear()
+
+  useEffect(() => {
+    fetch('/api/version')
+      .then(r => r.json())
+      .then(d => setVersion(d.version || d.commit || '1.0.0'))
+      .catch(() => setVersion('1.0.0'))
+  }, [])
 
   return (
     <footer style={{
@@ -29,7 +37,7 @@ export function Footer() {
           background: '#f8fafc', border: '1px solid #e2e8f0',
           padding: '3px 9px', borderRadius: 6, fontFamily: 'monospace',
         }}>
-          ⎇ v{display}
+          ⎇ v{version}
         </span>
       </div>
     </footer>
