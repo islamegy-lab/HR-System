@@ -97,6 +97,24 @@ export interface AttendanceLocation {
   radius_meters: number; is_active: boolean; created_at: string
 }
 
+export interface CompanySettings {
+  id: string
+  name_ar: string
+  name_en?: string
+  logo_url?: string
+  address?: string
+  phone?: string
+  email?: string
+  website?: string
+  tax_number?: string
+  commercial_reg?: string
+  currency: string
+  country?: string
+  city?: string
+  created_at: string
+  updated_at: string
+}
+
 export interface DashboardStats {
   total_employees: number; active_employees: number; on_leave_today: number
   present_today: number; absent_today: number; pending_leaves: number

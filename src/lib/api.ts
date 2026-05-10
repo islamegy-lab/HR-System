@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { Employee, Attendance, LeaveRequest, Payroll, DashboardStats, EmployeeDocument, AttendanceLocation } from '@/types'
+import type { Employee, Attendance, LeaveRequest, Payroll, DashboardStats, EmployeeDocument, AttendanceLocation, CompanySettings } from '@/types'
 
 // EMPLOYEES
 export const employeesApi = {
@@ -159,7 +159,23 @@ export const authApi = {
     supabase.from('employees').select('*, department:departments(id,name,name_ar), job_position:job_positions(id,title,title_ar)').eq('user_id', userId).single(),
 }
 
-// DASHBOARD
+// COMPANY SETTINGS
+export const companyApi = {
+  get: async () =>
+    supabase.from('company_settings').select('*').single(),
+  update: async (id: string, data: Partial<CompanySettings>) =>
+    supabase.from('company_settings')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id).select().single(),
+  uploadLogo: async (file: File) => {
+    const ext  = file.name.split('.').pop()
+    const path = `logo/logo-${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from('company').upload(path, file, { upsert: true })
+    if (error) return { url: null, error }
+    const { data } = supabase.storage.from('company').getPublicUrl(path)
+    return { url: data.publicUrl, error: null }
+  },
+}
 export const dashboardApi = {
   getStats: async (): Promise<{ data: DashboardStats | null; error: unknown }> => {
     const today = new Date().toISOString().split('T')[0]

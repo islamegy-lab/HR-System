@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { RefreshCw, DollarSign, TrendingUp, Users } from 'lucide-react'
+import { RefreshCw, DollarSign, TrendingUp, Users, Printer } from 'lucide-react'
 import { Topbar } from '@/components/layout/Topbar'
 import { Button } from '@/components/ui/Button'
 import { CardHeader, StatCard, Avatar, EmptyState, pageStyle, bodyStyle, cardStyle, thStyle, tdStyle } from '@/components/ui/PageComponents'
@@ -39,7 +39,13 @@ export default function PayrollPage() {
   return (
     <div style={pageStyle}>
       <Topbar title="الرواتب" subtitle={`${MONTHS[month - 1]} ${year}`}
-        actions={<Button variant="outline" size="sm" icon={<RefreshCw size={13} />} loading={generating} onClick={handleGenerate}>توليد الرواتب</Button>} />
+        actions={<>
+          <Button variant="outline" size="sm" icon={<Printer size={13} />}
+            onClick={() => window.open(`/payroll/print?month=${month}&year=${year}`, '_blank')}>
+            طباعة الكشف
+          </Button>
+          <Button variant="outline" size="sm" icon={<RefreshCw size={13} />} loading={generating} onClick={handleGenerate}>توليد الرواتب</Button>
+        </>} />
 
       <div style={bodyStyle}>
 
