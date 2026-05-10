@@ -116,6 +116,14 @@ export const documentsApi = {
     supabase.from('employee_documents').update({ ...data, updated_at: new Date().toISOString() }).eq('id', id).select().single(),
   delete: async (id: string) =>
     supabase.from('employee_documents').delete().eq('id', id),
+  uploadFile: async (file: File) => {
+    const ext  = file.name.split('.').pop()
+    const path = `files/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supabase.storage.from('documents').upload(path, file, { upsert: true })
+    if (error) return { url: null, error }
+    const { data } = supabase.storage.from('documents').getPublicUrl(path)
+    return { url: data.publicUrl, error: null }
+  },
 }
 
 // RECRUITMENT
@@ -159,14 +167,24 @@ export const authApi = {
     supabase.from('employees').select('*, department:departments(id,name,name_ar), job_position:job_positions(id,title,title_ar)').eq('user_id', userId).single(),
 }
 
-// COMPANY SETTINGS
-export const companyApi = {
-  get: async () =>
-    supabase.from('company_settings').select('*').single(),
-  update: async (id: string, data: Partial<CompanySettings>) =>
-    supabase.from('company_settings')
-      .update({ ...data, updated_at: new Date().toISOString() })
-      .eq('id', id).select().single(),
+// STORAGE UPLOAD HELPERS
+export const storageApi = {
+  uploadAvatar: async (file: File) => {
+    const ext  = file.name.split('.').pop()
+    const path = `avatars/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true })
+    if (error) return { url: null, error }
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+    return { url: data.publicUrl, error: null }
+  },
+  uploadDocument: async (file: File) => {
+    const ext  = file.name.split('.').pop()
+    const path = `files/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supabase.storage.from('documents').upload(path, file, { upsert: true })
+    if (error) return { url: null, error }
+    const { data } = supabase.storage.from('documents').getPublicUrl(path)
+    return { url: data.publicUrl, error: null }
+  },
   uploadLogo: async (file: File) => {
     const ext  = file.name.split('.').pop()
     const path = `logo/logo-${Date.now()}.${ext}`
@@ -175,6 +193,17 @@ export const companyApi = {
     const { data } = supabase.storage.from('company').getPublicUrl(path)
     return { url: data.publicUrl, error: null }
   },
+}
+
+// COMPANY SETTINGS
+export const companyApi = {
+  get: async () =>
+    supabase.from('company_settings').select('*').single(),
+  update: async (id: string, data: Partial<CompanySettings>) =>
+    supabase.from('company_settings')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id).select().single(),
+  uploadLogo: async (file: File) => storageApi.uploadLogo(file),
 }
 export const dashboardApi = {
   getStats: async (): Promise<{ data: DashboardStats | null; error: unknown }> => {

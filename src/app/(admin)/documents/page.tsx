@@ -1,12 +1,12 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
-import { Plus, FileText, AlertTriangle, CheckCircle, Clock, Trash2, Edit, Bell } from 'lucide-react'
+import { useEffect, useState, useCallback, useRef } from 'react'
+import { Plus, FileText, AlertTriangle, CheckCircle, Clock, Trash2, Edit, Bell, Upload, X } from 'lucide-react'
 import { Topbar } from '@/components/layout/Topbar'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { Input, Select } from '@/components/ui/Input'
 import { CardHeader, pageStyle, bodyStyle, cardStyle, thStyle, tdStyle, Avatar, EmptyState, TabBar } from '@/components/ui/PageComponents'
-import { documentsApi, employeesApi } from '@/lib/api'
+import { documentsApi, employeesApi, storageApi } from '@/lib/api'
 import type { EmployeeDocument, Employee } from '@/types'
 
 const DOC_TYPES = [
@@ -52,6 +52,17 @@ export default function DocumentsPage() {
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [search, setSearch] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const { url } = await storageApi.uploadDocument(file)
+    if (url) setForm(f => ({ ...f, file_url: url }))
+    setUploading(false)
+  }
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -279,7 +290,26 @@ export default function DocumentsPage() {
             <Input label="تاريخ الإصدار" type="date" value={form.issue_date} onChange={e => setForm(f => ({ ...f, issue_date: e.target.value }))} />
             <Input label="تاريخ الانتهاء" type="date" value={form.expiry_date} onChange={e => setForm(f => ({ ...f, expiry_date: e.target.value }))} />
             <div style={{ gridColumn: 'span 2' }}>
-              <Input label="رابط الملف (اختياري)" value={form.file_url} onChange={e => setForm(f => ({ ...f, file_url: e.target.value }))} placeholder="https://..." />
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 6 }}>ملف الوثيقة</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button type="button" onClick={() => fileInputRef.current?.click()}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', border: '1px solid #e2e8f0', borderRadius: 10, background: '#f8fafc', fontSize: 12, fontWeight: 600, color: '#475569', cursor: 'pointer' }}>
+                  <Upload size={13} /> {uploading ? 'جاري الرفع...' : 'رفع ملف'}
+                </button>
+                {form.file_url && (
+                  <>
+                    <a href={form.file_url} target="_blank" rel="noreferrer"
+                      style={{ fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <FileText size={13} /> عرض الملف
+                    </a>
+                    <button type="button" onClick={() => setForm(f => ({ ...f, file_url: '' }))}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex' }}>
+                      <X size={14} />
+                    </button>
+                  </>
+                )}
+              </div>
+              <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style={{ display: 'none' }} onChange={handleFileUpload} />
             </div>
           </div>
 

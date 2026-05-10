@@ -1,12 +1,9 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Users, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
-import { authApi } from '@/lib/api'
 import pkg from '../../../../package.json'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
@@ -17,8 +14,12 @@ export default function LoginPage() {
     e.preventDefault()
     if (!email || !password) { setError('يرجى إدخال البريد الإلكتروني وكلمة المرور'); return }
     setLoading(true); setError('')
-    const { error: err } = await authApi.signIn(email, password)
-    if (err) { setError('البريد الإلكتروني أو كلمة المرور غير صحيحة'); setLoading(false) }
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+    if (!res.ok) { setError('البريد الإلكتروني أو كلمة المرور غير صحيحة'); setLoading(false) }
     else { window.location.href = '/dashboard' }
   }
 
