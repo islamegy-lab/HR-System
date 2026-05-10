@@ -9,6 +9,97 @@ import { getStatusColor, getStatusLabel, formatDate } from '@/lib/utils'
 import type { Employee } from '@/types'
 import { EmployeeForm } from './EmployeeForm'
 
+// ===== Viewing Modal =====
+function ViewingModal({ emp, onEdit }: { emp: Employee; onEdit: () => void }) {
+  const [payroll, setPayroll] = useState<any>(null)
+
+  useEffect(() => {
+    import('@/lib/api').then(({ payrollApi }) => {
+      // جلب آخر راتب للموظف
+      import('@/lib/supabase').then(({ supabase }) => {
+        supabase.from('payroll')
+          .select('*')
+          .eq('employee_id', emp.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+          .then(({ data }) => setPayroll(data))
+      })
+    })
+  }, [emp.id])
+
+  const info = [
+    ['البريد الإلكتروني', emp.email],
+    ['الهاتف',            emp.phone || '—'],
+    ['القسم',             emp.department?.name_ar || '—'],
+    ['المسمى الوظيفي',    emp.job_position?.title_ar || '—'],
+    ['تاريخ التعيين',     formatDate(emp.hire_date)],
+    ['نوع العقد',         getStatusLabel(emp.contract_type)],
+    ['الجنسية',           emp.nationality || '—'],
+    ['رقم الهوية',        emp.national_id || '—'],
+  ]
+
+  const salaryRows = [
+    { label: 'الراتب الأساسي',  val: emp.basic_salary,              color: '#0f172a' },
+    { label: 'بدل السكن',       val: payroll?.housing_allowance,    color: '#2563eb' },
+    { label: 'بدل النقل',       val: payroll?.transport_allowance,  color: '#2563eb' },
+    { label: 'بدلات أخرى',      val: payroll?.other_allowances,     color: '#2563eb' },
+  ]
+  const total = salaryRows.reduce((s, r) => s + (Number(r.val) || 0), 0)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: 16, borderRadius: 14, background: 'linear-gradient(135deg,#eff6ff,#dbeafe)', border: '1px solid #bfdbfe' }}>
+        <div style={{ width: 60, height: 60, borderRadius: 16, background: 'linear-gradient(135deg,#2563eb,#60a5fa)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 24, fontWeight: 800, flexShrink: 0 }}>
+          {emp.photo_url ? <img src={emp.photo_url} style={{ width: 60, height: 60, borderRadius: 16, objectFit: 'cover' }} alt="" /> : emp.first_name[0]}
+        </div>
+        <div style={{ flex: 1 }}>
+          <h3 style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', margin: 0 }}>{emp.first_name} {emp.last_name}</h3>
+          <p style={{ fontSize: 13, color: '#475569', marginTop: 3 }}>{emp.job_position?.title_ar || '—'} · {emp.department?.name_ar || '—'}</p>
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <span className={`badge ${getStatusColor(emp.status)}`}>{getStatusLabel(emp.status)}</span>
+            <span style={{ fontSize: 11, color: '#64748b', fontFamily: 'monospace', background: '#f1f5f9', padding: '2px 8px', borderRadius: 6 }}>{emp.employee_number}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Info Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        {info.map(([k, v]) => (
+          <div key={k} style={{ background: '#f8fafc', borderRadius: 10, padding: '10px 14px', border: '1px solid #f1f5f9' }}>
+            <p style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', marginBottom: 3 }}>{k}</p>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{v}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Salary */}
+      <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+        <div style={{ padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: 12, fontWeight: 700, color: '#475569' }}>الراتب والبدلات</div>
+        <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {salaryRows.map(r => (
+            <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 13, color: '#64748b' }}>{r.label}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: r.val ? r.color : '#cbd5e1' }}>
+                {r.val ? `${Number(r.val).toLocaleString()} ر.س` : '—'}
+              </span>
+            </div>
+          ))}
+          <div style={{ borderTop: '2px solid #e2e8f0', paddingTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>الإجمالي</span>
+            <span style={{ fontSize: 16, fontWeight: 800, color: '#2563eb' }}>{total.toLocaleString()} ر.س</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button size="sm" variant="outline" icon={<Edit size={13} />} onClick={onEdit}>تعديل</Button>
+      </div>
+    </div>
+  )
+}
+
 const TABS = [
   { value: '', label: 'الكل' },
   { value: 'active', label: 'نشط' },
@@ -171,37 +262,7 @@ export default function EmployeesPage() {
       </Modal>
 
       <Modal open={!!viewing} onClose={() => setViewing(null)} title="ملف الموظف" size="lg">
-        {viewing && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: 16, borderRadius: 12, background: '#eff6ff', border: '1px solid #bfdbfe' }}>
-              <div style={{ width: 56, height: 56, borderRadius: 14, background: 'linear-gradient(135deg,#2563eb,#60a5fa)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 22, fontWeight: 800 }}>{viewing.first_name[0]}</div>
-              <div>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{viewing.first_name} {viewing.last_name}</h3>
-                <p style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>{viewing.job_position?.title_ar || '—'}</p>
-                <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-                  <span className={`badge ${getStatusColor(viewing.status)}`}>{getStatusLabel(viewing.status)}</span>
-                  <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: 'monospace' }}>{viewing.employee_number}</span>
-                </div>
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {[
-                ['البريد الإلكتروني', viewing.email], ['الهاتف', viewing.phone || '—'],
-                ['القسم', viewing.department?.name_ar || '—'], ['تاريخ التعيين', formatDate(viewing.hire_date)],
-                ['نوع العقد', getStatusLabel(viewing.contract_type)], ['الجنسية', viewing.nationality || '—'],
-                ['رقم الهوية', viewing.national_id || '—'], ['الراتب الأساسي', viewing.basic_salary ? `${viewing.basic_salary.toLocaleString()} ر.س` : '—'],
-              ].map(([k, v]) => (
-                <div key={k} style={{ background: '#f8fafc', borderRadius: 10, padding: '10px 14px', border: '1px solid #f1f5f9' }}>
-                  <p style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{k}</p>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{v}</p>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button size="sm" variant="outline" icon={<Edit size={13} />} onClick={() => { setViewing(null); setSelected(viewing); setShowForm(true) }}>تعديل</Button>
-            </div>
-          </div>
-        )}
+        {viewing && <ViewingModal emp={viewing} onEdit={() => { setViewing(null); setSelected(viewing); setShowForm(true) }} />}
       </Modal>
     </div>
   )
