@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     }, { status: 401 })
   }
 
-  const role: string = data.user?.user_metadata?.role || 'employee'
+  const role: string = data.user?.user_metadata?.role || 'hr_manager'
 
   const response = NextResponse.json({ ok: true, role })
 

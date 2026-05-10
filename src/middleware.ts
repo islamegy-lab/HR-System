@@ -34,9 +34,9 @@ export async function middleware(request: NextRequest) {
   }
 
   const user = await res.json()
-  const role = user?.user_metadata?.role || request.cookies.get('sb-role')?.value || 'employee'
+  const role = user?.user_metadata?.role || request.cookies.get('sb-role')?.value || 'hr_manager'
 
-  // موظف عادي يحاول يدخل لوحة الإدارة → ارفض
+  // موظف عادي يحاول يدخل لوحة الإدارة → بوابة الموظف
   if (role === 'employee' && !isAuthPage) {
     return NextResponse.redirect(new URL('/employee/attendance', request.url))
   }
