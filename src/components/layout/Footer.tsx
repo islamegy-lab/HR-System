@@ -1,3 +1,4 @@
+'use client'
 export function Footer() {
   const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'
   const commit  = process.env.NEXT_PUBLIC_COMMIT_HASH  || 'dev'
