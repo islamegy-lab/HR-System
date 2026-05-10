@@ -3,117 +3,107 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Users, Clock, CalendarDays, DollarSign,
-  Briefcase, GraduationCap, BarChart3, Settings, Building2,
-  ChevronDown, LogOut, HelpCircle
+  Briefcase, GraduationCap, BarChart3, Settings, Building2, LogOut
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useState } from 'react'
 
-const navGroups = [
+const groups = [
   {
-    label: 'الرئيسية',
-    items: [
-      { href: '/dashboard', label: 'لوحة التحكم', icon: LayoutDashboard },
-    ]
+    label: 'عام',
+    items: [{ href: '/dashboard', label: 'لوحة التحكم', icon: LayoutDashboard }],
   },
   {
-    label: 'إدارة الموظفين',
+    label: 'الموظفون',
     items: [
-      { href: '/employees', label: 'الموظفون', icon: Users },
-      { href: '/departments', label: 'الأقسام', icon: Building2 },
-      { href: '/attendance', label: 'الحضور والانصراف', icon: Clock },
-      { href: '/leaves', label: 'الإجازات', icon: CalendarDays },
-    ]
+      { href: '/employees',   label: 'الموظفون',          icon: Users },
+      { href: '/departments', label: 'الأقسام',            icon: Building2 },
+      { href: '/attendance',  label: 'الحضور والانصراف',   icon: Clock },
+      { href: '/leaves',      label: 'الإجازات',           icon: CalendarDays },
+    ],
   },
   {
     label: 'المالية والتطوير',
     items: [
-      { href: '/payroll', label: 'الرواتب', icon: DollarSign },
-      { href: '/performance', label: 'تقييم الأداء', icon: BarChart3 },
-      { href: '/recruitment', label: 'التوظيف', icon: Briefcase },
-      { href: '/training', label: 'التدريب', icon: GraduationCap },
-    ]
+      { href: '/payroll',     label: 'الرواتب',            icon: DollarSign },
+      { href: '/performance', label: 'تقييم الأداء',       icon: BarChart3 },
+      { href: '/recruitment', label: 'التوظيف',            icon: Briefcase },
+      { href: '/training',    label: 'التدريب',            icon: GraduationCap },
+    ],
   },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
-
-  const toggle = (label: string) =>
-    setCollapsed(c => ({ ...c, [label]: !c[label] }))
 
   return (
-    <aside className="w-60 bg-[#212b36] min-h-screen flex flex-col shrink-0 border-l border-white/5">
+    <aside className="w-56 bg-sidebar min-h-screen flex flex-col shrink-0">
       {/* Logo */}
-      <div className="px-4 py-4 border-b border-white/10">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-[#875bf7] rounded-lg flex items-center justify-center shrink-0">
+      <div className="px-4 py-5">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shrink-0">
             <Users className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p className="text-white font-bold text-sm leading-tight">نظام HR</p>
-            <p className="text-gray-400 text-[10px]">إدارة الموارد البشرية</p>
+            <p className="text-white text-sm font-bold leading-none">نظام HR</p>
+            <p className="text-gray-500 text-[10px] mt-0.5">الموارد البشرية</p>
           </div>
         </div>
       </div>
 
-      {/* Nav Groups */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
-        {navGroups.map(group => (
+      {/* Nav */}
+      <nav className="flex-1 px-3 pb-4 space-y-5 overflow-y-auto">
+        {groups.map(group => (
           <div key={group.label}>
-            <button
-              onClick={() => toggle(group.label)}
-              className="w-full flex items-center justify-between px-2 py-1 mb-1"
-            >
-              <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">{group.label}</span>
-              <ChevronDown className={cn('w-3 h-3 text-gray-500 transition-transform', collapsed[group.label] && '-rotate-90')} />
-            </button>
-            {!collapsed[group.label] && (
-              <div className="space-y-0.5">
-                {group.items.map(({ href, label, icon: Icon }) => {
-                  const active = pathname === href || pathname.startsWith(href + '/')
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      className={cn(
-                        'flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all',
-                        active
-                          ? 'bg-[#875bf7] text-white font-medium shadow-lg shadow-purple-900/20'
-                          : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
-                      )}
-                    >
-                      <Icon size={16} className="shrink-0" />
-                      <span>{label}</span>
-                      {active && <span className="mr-auto w-1.5 h-1.5 bg-white rounded-full opacity-70" />}
-                    </Link>
-                  )
-                })}
-              </div>
-            )}
+            <p className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest px-2 mb-1.5">
+              {group.label}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map(({ href, label, icon: Icon }) => {
+                const active = pathname === href || pathname.startsWith(href + '/')
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={cn(
+                      'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all',
+                      active
+                        ? 'bg-brand-600 text-white'
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    )}
+                  >
+                    <Icon size={15} className="shrink-0" />
+                    {label}
+                  </Link>
+                )
+              })}
+            </div>
           </div>
         ))}
       </nav>
 
-      {/* Bottom */}
-      <div className="border-t border-white/10 p-3 space-y-1">
-        <Link href="/settings" className={cn('flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all', pathname === '/settings' ? 'bg-[#875bf7] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200')}>
-          <Settings size={16} />
-          <span>الإعدادات</span>
+      {/* Footer */}
+      <div className="px-3 pb-4 space-y-0.5 border-t border-white/5 pt-3">
+        <Link
+          href="/settings"
+          className={cn(
+            'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all',
+            pathname === '/settings' ? 'bg-brand-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
+          )}
+        >
+          <Settings size={15} />
+          الإعدادات
         </Link>
-        <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-400 hover:bg-white/5 hover:text-gray-200 transition-all">
-          <HelpCircle size={16} />
-          <span>المساعدة</span>
-        </button>
-        <div className="flex items-center gap-2.5 px-3 py-2 mt-2 bg-white/5 rounded-lg">
-          <div className="w-7 h-7 bg-[#875bf7] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">م</div>
+
+        <div className="flex items-center gap-2.5 px-3 py-2 mt-2 rounded-lg bg-white/5">
+          <div className="w-7 h-7 bg-brand-600 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
+            م
+          </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-xs font-medium truncate">مدير النظام</p>
+            <p className="text-white text-xs font-semibold truncate">مدير النظام</p>
             <p className="text-gray-500 text-[10px] truncate">admin@hr.com</p>
           </div>
-          <button className="text-gray-500 hover:text-gray-300 transition">
-            <LogOut size={14} />
+          <button className="text-gray-500 hover:text-gray-300 transition shrink-0">
+            <LogOut size={13} />
           </button>
         </div>
       </div>

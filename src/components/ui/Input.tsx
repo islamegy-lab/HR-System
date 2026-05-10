@@ -8,16 +8,12 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 export function Input({ label, error, className, ...props }: InputProps) {
   return (
     <div className="flex flex-col gap-1">
-      {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
+      {label && <label className="form-label">{label}</label>}
       <input
-        className={cn(
-          'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition',
-          error && 'border-red-500 focus:ring-red-500',
-          className
-        )}
+        className={cn('form-input', error && 'form-input-error', className)}
         {...props}
       />
-      {error && <span className="text-xs text-red-500">{error}</span>}
+      {error && <span className="text-xs text-red-500 mt-0.5">{error}</span>}
     </div>
   )
 }
@@ -31,21 +27,17 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 export function Select({ label, error, options, className, ...props }: SelectProps) {
   return (
     <div className="flex flex-col gap-1">
-      {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
+      {label && <label className="form-label">{label}</label>}
       <select
-        className={cn(
-          'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition bg-white',
-          error && 'border-red-500',
-          className
-        )}
+        className={cn('form-input bg-white', error && 'form-input-error', className)}
         {...props}
       >
-        <option value="">-- اختر --</option>
-        {options.map(opt => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        <option value="">— اختر —</option>
+        {options.map(o => (
+          <option key={o.value} value={o.value}>{o.label}</option>
         ))}
       </select>
-      {error && <span className="text-xs text-red-500">{error}</span>}
+      {error && <span className="text-xs text-red-500 mt-0.5">{error}</span>}
     </div>
   )
 }
