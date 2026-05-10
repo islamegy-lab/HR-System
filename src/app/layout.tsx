@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={cairo.className}>
         <div className="flex min-h-screen">
           <Sidebar />
-          <main className="flex-1 min-w-0 overflow-auto bg-surface-50">{children}</main>
+          <main className="flex-1 min-w-0 overflow-auto bg-gray-50">{children}</main>
         </div>
       </body>
     </html>
