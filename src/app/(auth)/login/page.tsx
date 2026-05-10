@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Users, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
 import { authApi } from '@/lib/api'
+import pkg from '../../../../package.json'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -18,10 +19,8 @@ export default function LoginPage() {
     setLoading(true); setError('')
     const { error: err } = await authApi.signIn(email, password)
     if (err) { setError('البريد الإلكتروني أو كلمة المرور غير صحيحة'); setLoading(false) }
-    else { router.push('/dashboard'); router.refresh() }
+    else { router.replace('/dashboard') }
   }
-
-  const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'
 
   return (
     <div style={{
@@ -125,7 +124,7 @@ export default function LoginPage() {
             <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>مشغّل بواسطة</span>
             <span style={{ fontSize: 12, fontWeight: 800, color: '#60a5fa' }}>دُكَّانِي</span>
             <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>⎇ v{version}</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>⎇ v{pkg.version}</span>
           </div>
         </div>
       </div>
