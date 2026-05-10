@@ -28,7 +28,7 @@ export function Footer() {
           background: '#f8fafc', border: '1px solid #e2e8f0',
           padding: '3px 9px', borderRadius: 6, fontFamily: 'monospace',
         }}>
-          v{version}
+          ⎇ v{version}
         </span>
       </div>
     </footer>

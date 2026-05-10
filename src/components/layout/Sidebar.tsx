@@ -62,15 +62,6 @@ export function Sidebar() {
             <p style={{ color: '#60a5fa', fontSize: 11, marginTop: 3 }}>الموارد البشرية</p>
             <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: 9, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
               بواسطة <span style={{ color: '#60a5fa', fontWeight: 700 }}>دُكَّانِي</span>
-              <span style={{
-                fontFamily: 'monospace', fontSize: 9,
-                background: 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                padding: '1px 5px', borderRadius: 4,
-                color: 'rgba(148,163,184,0.6)',
-              }}>
-                {process.env.NEXT_PUBLIC_COMMIT_HASH || 'dev'}
-              </span>
             </p>
           </div>
         </div>
