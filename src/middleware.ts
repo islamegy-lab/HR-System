@@ -1,53 +1,42 @@
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  let supabaseResponse = NextResponse.next({ request })
 
-  const isAuthPage     = pathname === '/login'
-  const isEmployeePage = pathname.startsWith('/employee')
-  const isApiPage      = pathname.startsWith('/api')
-
-  if (isEmployeePage || isApiPage)
-    return NextResponse.next()
-
-  const token = request.cookies.get('sb-access-token')?.value
-
-  if (!token) {
-    if (isAuthPage) return NextResponse.next()
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-
-  // تحقق من صحة الـ token مع Supabase
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/user`,
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      cookies: {
+        getAll: () => request.cookies.getAll(),
+        setAll: (cookiesToSet) => {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
       },
     }
   )
 
-  if (!res.ok) {
-    if (isAuthPage) return NextResponse.next()
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
+  const { data: { user } } = await supabase.auth.getUser()
+  const { pathname } = request.nextUrl
 
-  const user = await res.json()
-  const role = user?.user_metadata?.role || request.cookies.get('sb-role')?.value || 'hr_manager'
+  // /login → إذا مسجل دخول وجّهه للداشبورد
+  if (pathname === '/login' && user)
+    return NextResponse.redirect(new URL('/dashboard', request.url))
 
-  // موظف عادي يحاول يدخل لوحة الإدارة → بوابة الموظف
-  if (role === 'employee' && !isAuthPage) {
-    return NextResponse.redirect(new URL('/employee/attendance', request.url))
-  }
+  // /employee/login → إذا مسجل دخول وجّهه لبوابة الموظف
+  if (pathname === '/employee/login' && user)
+    return NextResponse.redirect(new URL('/employee', request.url))
 
-  // مسجل دخول + على /login → داشبورد
-  if (isAuthPage) {
-    const dest = role === 'employee' ? '/employee/attendance' : '/dashboard'
-    return NextResponse.redirect(new URL(dest, request.url))
-  }
+  // بوابة الموظف (عدا login) → يحتاج تسجيل دخول
+  if (pathname.startsWith('/employee') && pathname !== '/employee/login' && !user)
+    return NextResponse.redirect(new URL('/employee/login', request.url))
 
-  return NextResponse.next()
+  return supabaseResponse
 }
 
 export const config = {
