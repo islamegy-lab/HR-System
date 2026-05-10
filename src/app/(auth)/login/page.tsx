@@ -19,7 +19,12 @@ export default function LoginPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     })
-    if (!res.ok) { setError('البريد الإلكتروني أو كلمة المرور غير صحيحة'); setLoading(false); return }
+    if (!res.ok) {
+      const data = await res.json()
+      setError(data.error || 'خطأ في تسجيل الدخول')
+      setLoading(false)
+      return
+    }
     const data = await res.json()
     if (data.role === 'employee') {
       setError('هذا الحساب مخصص لبوابة الموظف فقط'); setLoading(false); return
