@@ -1,7 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { Users, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
-import pkg from '../../../../package.json'
+
+const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'
 
 export default function LoginPage() {
   const [email, setEmail]       = useState('')
@@ -134,7 +135,7 @@ export default function LoginPage() {
             <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>مشغّل بواسطة</span>
             <span style={{ fontSize: 12, fontWeight: 800, color: '#60a5fa' }}>دُكَّانِي</span>
             <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>⎇ v{pkg.version}</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>⎇ v{version}</span>
           </div>
         </div>
       </div>

@@ -131,4 +131,6 @@ export interface DashboardStats {
   total_employees: number; active_employees: number; on_leave_today: number
   present_today: number; absent_today: number; pending_leaves: number
   open_jobs: number; monthly_payroll: number
+  attendance_chart: { day: string; حاضر: number; غائب: number; متأخر: number }[]
+  payroll_chart:    { month: string; الرواتب: number }[]
 }

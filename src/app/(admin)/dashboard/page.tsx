@@ -11,24 +11,6 @@ import {
   Tooltip, ResponsiveContainer, Legend
 } from 'recharts'
 
-const attendanceData = [
-  { day: 'السبت',   حاضر: 42, غائب: 5, متأخر: 3 },
-  { day: 'الأحد',   حاضر: 45, غائب: 3, متأخر: 2 },
-  { day: 'الاثنين', حاضر: 40, غائب: 7, متأخر: 3 },
-  { day: 'الثلاثاء',حاضر: 47, غائب: 2, متأخر: 1 },
-  { day: 'الأربعاء',حاضر: 44, غائب: 4, متأخر: 2 },
-  { day: 'الخميس',  حاضر: 38, غائب: 8, متأخر: 4 },
-]
-
-const payrollData = [
-  { month: 'يوليو',   الرواتب: 180000 },
-  { month: 'أغسطس',  الرواتب: 195000 },
-  { month: 'سبتمبر', الرواتب: 188000 },
-  { month: 'أكتوبر', الرواتب: 210000 },
-  { month: 'نوفمبر', الرواتب: 205000 },
-  { month: 'ديسمبر', الرواتب: 220000 },
-]
-
 const S = {
   page: { minHeight: '100vh', background: '#f1f5f9' } as React.CSSProperties,
   body: { padding: 24, display: 'flex', flexDirection: 'column' as const, gap: 20 },
@@ -68,6 +50,9 @@ export default function DashboardPage() {
     { label: 'وظائف مفتوحة',    value: stats.open_jobs,        sub: 'للتوظيف',                          icon: Briefcase,   bg: '#fff1f2', ic: '#e11d48' },
     { label: 'في إجازة اليوم',  value: stats.on_leave_today,   sub: 'موظف',                             icon: TrendingUp,  bg: '#f0fdfa', ic: '#0d9488' },
   ] : []
+
+  const attendanceData = stats?.attendance_chart || []
+  const payrollData    = stats?.payroll_chart    || []
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>

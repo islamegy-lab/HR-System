@@ -1,8 +1,7 @@
 'use client'
-import pkg from '../../../package.json'
 
 export function Footer() {
-  const version = pkg.version
+  const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'
   const year    = new Date().getFullYear()
 
   return (

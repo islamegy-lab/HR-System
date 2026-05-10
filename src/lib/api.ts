@@ -207,26 +207,12 @@ export const companyApi = {
 }
 export const dashboardApi = {
   getStats: async (): Promise<{ data: DashboardStats | null; error: unknown }> => {
-    const today = new Date().toISOString().split('T')[0]
-    const [employees, todayAttendance, pendingLeaves, openJobs, monthlyPayroll] = await Promise.all([
-      supabase.from('employees').select('status'),
-      supabase.from('attendance').select('status').eq('date', today),
-      supabase.from('leave_requests').select('id').eq('status', 'pending'),
-      supabase.from('recruitment_jobs').select('id').eq('status', 'open'),
-      supabase.from('payroll').select('net_salary').eq('month', new Date().getMonth() + 1).eq('year', new Date().getFullYear()),
-    ])
-    return {
-      data: {
-        total_employees: employees.data?.length || 0,
-        active_employees: employees.data?.filter(e => e.status === 'active').length || 0,
-        present_today: todayAttendance.data?.filter(a => a.status === 'present').length || 0,
-        absent_today: todayAttendance.data?.filter(a => a.status === 'absent').length || 0,
-        on_leave_today: todayAttendance.data?.filter(a => a.status === 'on_leave').length || 0,
-        pending_leaves: pendingLeaves.data?.length || 0,
-        open_jobs: openJobs.data?.length || 0,
-        monthly_payroll: monthlyPayroll.data?.reduce((s, p) => s + (p.net_salary || 0), 0) || 0,
-      },
-      error: null,
+    try {
+      const res = await fetch('/api/dashboard')
+      const data = await res.json()
+      return { data, error: null }
+    } catch (e) {
+      return { data: null, error: e }
     }
   },
 }
