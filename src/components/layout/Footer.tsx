@@ -1,6 +1,7 @@
 export function Footer() {
-  const commit = process.env.NEXT_PUBLIC_COMMIT_HASH || 'dev'
-  const year = new Date().getFullYear()
+  const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'
+  const commit  = process.env.NEXT_PUBLIC_COMMIT_HASH  || 'dev'
+  const year    = new Date().getFullYear()
 
   return (
     <footer style={{
@@ -27,6 +28,14 @@ export function Footer() {
           letterSpacing: '0.02em',
         }}>
           دُكَّانِي
+        </span>
+        <span style={{ color: '#e2e8f0', fontSize: 14 }}>|</span>
+        <span style={{
+          fontSize: 11, fontWeight: 700, color: '#475569',
+          background: '#f8fafc', border: '1px solid #e2e8f0',
+          padding: '3px 9px', borderRadius: 6,
+        }}>
+          v{version}
         </span>
         <span style={{ color: '#e2e8f0', fontSize: 14 }}>|</span>
         <a
