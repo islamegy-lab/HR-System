@@ -116,7 +116,7 @@ export default function SettingsPage() {
     <div style={{ minHeight: '100vh', background: '#f1f5f9' }}>
       <Topbar title="الإعدادات" />
 
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 820, width: '100%' }}>
+      <div className="page-body-narrow">
 
         {/* ── بيانات الشركة ── */}
         <Section title="بيانات الشركة" color="#2563eb" icon={Building2}>

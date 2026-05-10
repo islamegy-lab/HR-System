@@ -1,7 +1,7 @@
 import React from 'react'
 
 export const pageStyle: React.CSSProperties = { minHeight: '100vh', background: '#f1f5f9' }
-export const bodyStyle: React.CSSProperties = { padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }
+export const bodyStyle: React.CSSProperties = { padding: 24, display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 1400, margin: '0 auto', width: '100%' }
 export const cardStyle: React.CSSProperties = { background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', overflow: 'hidden' }
 export const thStyle: React.CSSProperties = { padding: '11px 16px', textAlign: 'right', fontSize: 11, fontWeight: 600, color: '#64748b', background: '#f8fafc', borderBottom: '1px solid #f1f5f9', whiteSpace: 'nowrap' }
 export const tdStyle: React.CSSProperties = { padding: '12px 16px', fontSize: 13, color: '#334155', borderBottom: '1px solid #f8fafc' }
