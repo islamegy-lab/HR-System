@@ -29,6 +29,64 @@ interface FormState {
   other_allowances: string
 }
 
+const NATIONALITIES = [
+  // الخليج
+  { value: 'سعودي', label: '🇸🇦 سعودي' },
+  { value: 'إماراتي', label: '🇦🇪 إماراتي' },
+  { value: 'كويتي', label: '🇰🇼 كويتي' },
+  { value: 'قطري', label: '🇶🇦 قطري' },
+  { value: 'بحريني', label: '🇧🇭 بحريني' },
+  { value: 'عُماني', label: '🇴🇲 عُماني' },
+  // عربي
+  { value: 'مصري', label: '🇪🇬 مصري' },
+  { value: 'أردني', label: '🇯🇴 أردني' },
+  { value: 'سوري', label: '🇸🇾 سوري' },
+  { value: 'لبناني', label: '🇱🇧 لبناني' },
+  { value: 'يمني', label: '🇾🇪 يمني' },
+  { value: 'عراقي', label: '🇮🇶 عراقي' },
+  { value: 'فلسطيني', label: '🇵🇸 فلسطيني' },
+  { value: 'سوداني', label: '🇸🇩 سوداني' },
+  { value: 'تونسي', label: '🇹🇳 تونسي' },
+  { value: 'جزائري', label: '🇩🇿 جزائري' },
+  { value: 'مغربي', label: '🇲🇦 مغربي' },
+  { value: 'ليبي', label: '🇱🇾 ليبي' },
+  { value: 'موريتاني', label: '🇲🇷 موريتاني' },
+  { value: 'صومالي', label: '🇸🇴 صومالي' },
+  { value: 'جيبوتي', label: '🇩🇯 جيبوتي' },
+  { value: 'قمري', label: '🇰🇲 قمري' },
+  // آسيا
+  { value: 'هندي', label: '🇮🇳 هندي' },
+  { value: 'باكستاني', label: '🇵🇰 باكستاني' },
+  { value: 'بنغلاديشي', label: '🇧🇩 بنغلاديشي' },
+  { value: 'سريلانكي', label: '🇱🇰 سريلانكي' },
+  { value: 'نيبالي', label: '🇳🇵 نيبالي' },
+  { value: 'فلبيني', label: '🇵🇭 فلبيني' },
+  { value: 'إندونيسي', label: '🇮🇩 إندونيسي' },
+  { value: 'ماليزي', label: '🇲🇾 ماليزي' },
+  { value: 'تايلاندي', label: '🇹🇭 تايلاندي' },
+  { value: 'صيني', label: '🇨🇳 صيني' },
+  { value: 'كوري', label: '🇰🇷 كوري' },
+  { value: 'ياباني', label: '🇯🇵 ياباني' },
+  { value: 'إيراني', label: '🇮🇷 إيراني' },
+  { value: 'تركي', label: '🇹🇷 تركي' },
+  { value: 'أفغاني', label: '🇦🇫 أفغاني' },
+  { value: 'إثيوبي', label: '🇪🇹 إثيوبي' },
+  { value: 'إريتري', label: '🇪🇷 إريتري' },
+  { value: 'كيني', label: '🇰🇪 كيني' },
+  { value: 'أوغندي', label: '🇺🇬 أوغندي' },
+  { value: 'تنزاني', label: '🇹🇿 تنزاني' },
+  // أوروبا وأمريكا
+  { value: 'بريطاني', label: '🇬🇧 بريطاني' },
+  { value: 'أمريكي', label: '🇺🇸 أمريكي' },
+  { value: 'كندي', label: '🇨🇦 كندي' },
+  { value: 'أسترالي', label: '🇦🇺 أسترالي' },
+  { value: 'فرنسي', label: '🇫🇷 فرنسي' },
+  { value: 'ألماني', label: '🇩🇪 ألماني' },
+  { value: 'إيطالي', label: '🇮🇹 إيطالي' },
+  { value: 'إسباني', label: '🇪🇸 إسباني' },
+  { value: 'روسي', label: '🇷🇺 روسي' },
+]
+
 const TABS = ['بيانات الدخول', 'البيانات الشخصية', 'البيانات الوظيفية', 'الراتب والبدلات']
 
 export function EmployeeForm({ employee, onSave, onCancel }: Props) {
@@ -212,7 +270,8 @@ export function EmployeeForm({ employee, onSave, onCancel }: Props) {
           <Input label="تاريخ الميلاد"     type="date" value={form.date_of_birth} onChange={set('date_of_birth')} />
           <Select label="الجنس" value={form.gender} onChange={set('gender')}
             options={[{ value: 'male', label: 'ذكر' }, { value: 'female', label: 'أنثى' }]} />
-          <Input label="الجنسية" value={form.nationality} onChange={set('nationality')} />
+          <Select label="الجنسية" value={form.nationality} onChange={set('nationality')}
+            options={NATIONALITIES} />
           <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: 6 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>العنوان</label>
             <textarea value={form.address} onChange={set('address')} rows={2}
