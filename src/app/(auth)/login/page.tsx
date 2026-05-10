@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState('')
 
-  const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'
+  const version = `${process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'} · ${process.env.NEXT_PUBLIC_COMMIT_HASH || ''}`
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
