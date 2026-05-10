@@ -19,8 +19,12 @@ export default function LoginPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     })
-    if (!res.ok) { setError('البريد الإلكتروني أو كلمة المرور غير صحيحة'); setLoading(false) }
-    else { window.location.href = '/dashboard' }
+    if (!res.ok) { setError('البريد الإلكتروني أو كلمة المرور غير صحيحة'); setLoading(false); return }
+    const data = await res.json()
+    if (data.role === 'employee') {
+      setError('هذا الحساب مخصص لبوابة الموظف فقط'); setLoading(false); return
+    }
+    window.location.href = '/dashboard'
   }
 
   return (

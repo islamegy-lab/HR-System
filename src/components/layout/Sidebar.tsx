@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, Users, Clock, CalendarDays, DollarSign,
   Briefcase, GraduationCap, BarChart3, Settings, Building2,
-  LogOut, FileText, MapPin, UserCircle
+  LogOut, FileText, MapPin, Shield
 } from 'lucide-react'
 import { authApi, companyApi } from '@/lib/api'
 import type { CompanySettings } from '@/types'
@@ -39,6 +39,7 @@ const NAV = [
     label: 'الإدارة',
     items: [
       { href: '/documents',         label: 'الأوراق الرسمية',   icon: FileText },
+      { href: '/roles',              label: 'الصلاحيات والأدوار', icon: Shield },
       { href: '/employee/attendance',label: 'بوابة الموظف',      icon: MapPin },
     ]
   },
@@ -54,9 +55,8 @@ export function Sidebar() {
   }, [])
 
   const handleLogout = async () => {
-    await authApi.signOut()
-    router.push('/login')
-    router.refresh()
+    await fetch('/api/auth/logout', { method: 'POST' })
+    window.location.href = '/login'
   }
 
   return (

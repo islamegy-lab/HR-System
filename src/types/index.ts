@@ -5,6 +5,18 @@ export type PayrollStatus = 'draft' | 'confirmed' | 'paid'
 export type AttendanceStatus = 'present' | 'absent' | 'late' | 'half_day' | 'holiday'
 export type ApplicationStage = 'new' | 'screening' | 'interview' | 'offer' | 'hired' | 'rejected'
 export type DocumentStatus = 'active' | 'expired' | 'archived'
+export type UserRole = 'super_admin' | 'hr_manager' | 'hr_staff' | 'employee'
+
+export interface Role {
+  id: string; name: UserRole; label_ar: string
+  permissions: string[]; created_at: string
+}
+
+export interface UserProfile {
+  id: string; user_id: string; employee_id?: string
+  role: UserRole; is_active: boolean; created_at: string
+  employee?: Employee
+}
 
 export interface Department {
   id: string; name: string; name_ar?: string; manager_id?: string
