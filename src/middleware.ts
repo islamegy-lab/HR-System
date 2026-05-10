@@ -24,20 +24,12 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  // صفحة تسجيل الدخول - إذا مسجل دخول وجّهه للداشبورد
-  if (pathname === '/login' && user) {
+  // إذا على /login وهو مسجل دخول → داشبورد
+  if (pathname === '/login' && user)
     return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
 
-  // صفحة الموظف - محمية
-  if (pathname.startsWith('/employee') && !user) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-
-  // باقي الصفحات - بدون حماية حالياً (يمكن تفعيلها لاحقاً)
-  // if (!user && !pathname.startsWith('/login')) {
-  //   return NextResponse.redirect(new URL('/login', request.url))
-  // }
+  // بوابة الموظف - تسجيل دخول خاص بها
+  // لا تحتاج middleware لأن لها login screen داخلي
 
   return supabaseResponse
 }
