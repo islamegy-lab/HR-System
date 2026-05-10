@@ -3,10 +3,81 @@
 @tailwind utilities;
 
 @layer base {
-  * { box-sizing: border-box; }
-  html { font-family: 'Cairo', sans-serif; }
-  body { background: #f3f4f6; color: #111827; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-family: 'Cairo', sans-serif; scroll-behavior: smooth; }
+  body {
+    background: #f1f5f9;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+  }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: #f3f4f6; }
-  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2563eb; }
 }
+
+@layer utilities {
+  .fade-in  { animation: fadeIn  0.35s ease both; }
+  .slide-up { animation: slideUp 0.4s  ease both; }
+  .scale-in { animation: scaleIn 0.25s ease both; }
+
+  .shimmer {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+
+  .card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .card:hover {
+    box-shadow: 0 8px 30px -6px rgba(37,99,235,0.12);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary {
+    background: #2563eb;
+    color: #fff;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  .btn-primary:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+}
+
+@keyframes fadeIn  { from { opacity: 0; }                        to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes pulse  { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+
+tr:hover .row-actions { opacity: 1 !important; }
+
+/* Badge colors */
+.bg-emerald-50  { background: #f0fdf4; }
+.text-emerald-700 { color: #15803d; }
+.bg-amber-50    { background: #fffbeb; }
+.text-amber-700 { color: #b45309; }
+.bg-red-50      { background: #fff1f2; }
+.text-red-700   { color: #b91c1c; }
+.bg-blue-50     { background: #eff6ff; }
+.text-blue-700  { color: #1d4ed8; }
+.bg-slate-100   { background: #f1f5f9; }
+.text-slate-600 { color: #475569; }
+.bg-orange-50   { background: #fff7ed; }
+.text-orange-700{ color: #c2410c; }

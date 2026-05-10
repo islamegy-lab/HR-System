@@ -5,6 +5,7 @@ import { Topbar } from '@/components/layout/Topbar'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { Input, Select } from '@/components/ui/Input'
+import { pageStyle, bodyStyle, cardStyle, EmptyState, Avatar } from '@/components/ui/PageComponents'
 import { recruitmentApi } from '@/lib/api'
 import { getStatusColor, getStatusLabel, formatDate } from '@/lib/utils'
 import type { RecruitmentJob, JobApplication } from '@/types'
@@ -43,52 +44,63 @@ export default function RecruitmentPage() {
   }
 
   const stages = ['new', 'screening', 'interview', 'offer', 'hired', 'rejected']
-  const stageColors: Record<string, string> = {
-    new: 'bg-gray-100 text-gray-700', screening: 'bg-blue-100 text-blue-700',
-    interview: 'bg-yellow-100 text-yellow-700', offer: 'bg-indigo-100 text-indigo-700',
-    hired: 'bg-green-100 text-green-700', rejected: 'bg-red-100 text-red-700',
+  const stageStyle: Record<string, { bg: string; color: string }> = {
+    new:       { bg: '#f1f5f9', color: '#475569' },
+    screening: { bg: '#eff6ff', color: '#2563eb' },
+    interview: { bg: '#fffbeb', color: '#d97706' },
+    offer:     { bg: '#faf5ff', color: '#7c3aed' },
+    hired:     { bg: '#f0fdf4', color: '#16a34a' },
+    rejected:  { bg: '#fff1f2', color: '#e11d48' },
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={pageStyle}>
       <Topbar title="التوظيف" subtitle={`${jobs.filter(j => j.status === 'open').length} وظيفة مفتوحة`}
         actions={<Button size="sm" icon={<Plus size={14} />} onClick={() => setShowJobForm(true)}>إضافة وظيفة</Button>} />
 
-      <div className="p-6 space-y-4">
+      <div style={bodyStyle}>
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-white rounded-xl border border-gray-100 h-40 animate-pulse" />)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+            {Array.from({ length: 3 }).map((_, i) => <div key={i} className="shimmer" style={{ height: 180, borderRadius: 16 }} />)}
           </div>
         ) : jobs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-            <Briefcase size={40} className="mb-3 opacity-20" />
-            <p className="text-sm">لا توجد وظائف</p>
-            <button onClick={() => setShowJobForm(true)} className="text-xs text-indigo-600 hover:underline mt-1">إضافة أول وظيفة</button>
+          <div style={cardStyle}><EmptyState icon={Briefcase} text="لا توجد وظائف"
+            action={<button onClick={() => setShowJobForm(true)} style={{ fontSize: 12, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>إضافة أول وظيفة</button>} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {jobs.map(job => (
-              <div key={job.id} className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h3 className="font-bold text-gray-900">{job.title}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">{job.department?.name_ar || job.department?.name}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+            {jobs.map((job, i) => (
+              <div key={job.id} className="card slide-up" style={{ padding: 20, animationDelay: `${i * 50}ms` }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Briefcase size={18} color="#2563eb" />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{job.title}</h3>
+                      <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{job.department?.name_ar || job.department?.name}</p>
+                    </div>
                   </div>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(job.status)}`}>{getStatusLabel(job.status)}</span>
+                  <span className={`badge ${getStatusColor(job.status)}`}>{getStatusLabel(job.status)}</span>
                 </div>
-                <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
-                  <span className="flex items-center gap-1"><Users size={13} /> {job.positions_count} مقعد</span>
-                  {job.deadline && <span className="flex items-center gap-1"><Calendar size={13} /> {formatDate(job.deadline)}</span>}
+                <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, background: '#eff6ff', color: '#2563eb', padding: '4px 10px', borderRadius: 8, fontWeight: 600 }}>
+                    <Users size={11} /> {job.positions_count} مقعد
+                  </span>
+                  {job.deadline && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, background: '#f8fafc', color: '#64748b', padding: '4px 10px', borderRadius: 8 }}>
+                      <Calendar size={11} /> {formatDate(job.deadline)}
+                    </span>
+                  )}
                 </div>
-                {job.description && <p className="text-xs text-gray-500 mb-4 line-clamp-2">{job.description}</p>}
-                <div className="flex gap-2">
-                  <button onClick={() => loadApplications(job.id)}
-                    className="flex-1 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition border border-indigo-200">
+                {job.description && <p style={{ fontSize: 12, color: '#64748b', marginBottom: 14, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{job.description}</p>}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => loadApplications(job.id)} style={{ flex: 1, padding: '8px 0', background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                     المتقدمون ({job.applications_count || 0})
                   </button>
                   {job.status === 'open' && (
                     <button onClick={() => recruitmentApi.updateJob(job.id, { status: 'closed' }).then(load)}
-                      className="py-1.5 px-3 bg-gray-50 text-gray-600 rounded-lg text-xs font-semibold hover:bg-gray-100 transition border border-gray-200">
+                      style={{ padding: '8px 14px', background: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                       إغلاق
                     </button>
                   )}
@@ -100,25 +112,25 @@ export default function RecruitmentPage() {
       </div>
 
       <Modal open={showJobForm} onClose={() => setShowJobForm(false)} title="إضافة وظيفة جديدة" size="lg">
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <Input label="المسمى الوظيفي *" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
             <Select label="القسم" value={form.department_id} onChange={e => setForm(f => ({ ...f, department_id: e.target.value }))}
               options={departments.map(d => ({ value: d.id, label: d.name_ar || d.name }))} />
             <Input label="عدد المقاعد" type="number" value={form.positions_count} onChange={e => setForm(f => ({ ...f, positions_count: Number(e.target.value) }))} />
             <Input label="آخر موعد للتقديم" type="date" value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">وصف الوظيفة</label>
-            <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition resize-none" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">المتطلبات</label>
-            <textarea value={form.requirements} onChange={e => setForm(f => ({ ...f, requirements: e.target.value }))} rows={3}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition resize-none" />
-          </div>
-          <div className="flex gap-2 justify-end">
+          {[{ key: 'description', label: 'وصف الوظيفة' }, { key: 'requirements', label: 'المتطلبات' }].map(f => (
+            <div key={f.key} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>{f.label}</label>
+              <textarea value={(form as any)[f.key]} onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))} rows={3}
+                style={{ padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 13, color: '#0f172a', resize: 'none', outline: 'none', fontFamily: 'Cairo, sans-serif' }}
+                onFocus={e => e.target.style.borderColor = '#2563eb'}
+                onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+              />
+            </div>
+          ))}
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
             <Button variant="outline" onClick={() => setShowJobForm(false)}>إلغاء</Button>
             <Button loading={saving} onClick={handleSaveJob}>نشر الوظيفة</Button>
           </div>
@@ -126,19 +138,19 @@ export default function RecruitmentPage() {
       </Modal>
 
       <Modal open={!!showApps} onClose={() => setShowApps(null)} title="المتقدمون للوظيفة" size="xl">
-        <div className="space-y-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {applications.length === 0 ? (
-            <p className="text-center text-gray-400 py-8 text-sm">لا يوجد متقدمون بعد</p>
+            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '32px 0', fontSize: 13 }}>لا يوجد متقدمون بعد</p>
           ) : applications.map(app => (
-            <div key={app.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-              <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold shrink-0">{app.applicant_name[0]}</div>
-              <div className="flex-1">
-                <p className="font-semibold text-gray-900">{app.applicant_name}</p>
-                <p className="text-xs text-gray-500">{app.email} · {app.phone}</p>
+            <div key={app.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderRadius: 12, background: '#f8fafc', border: '1px solid #f1f5f9' }}>
+              <Avatar name={app.applicant_name} size={40} />
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{app.applicant_name}</p>
+                <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{app.email} · {app.phone}</p>
               </div>
               <select value={app.stage}
                 onChange={async e => { await recruitmentApi.updateApplicationStage(app.id, e.target.value); loadApplications(showApps!) }}
-                className={`text-xs px-3 py-1.5 rounded-lg font-semibold border-0 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer ${stageColors[app.stage]}`}>
+                style={{ padding: '6px 12px', borderRadius: 8, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', outline: 'none', background: stageStyle[app.stage]?.bg, color: stageStyle[app.stage]?.color }}>
                 {stages.map(s => <option key={s} value={s}>{getStatusLabel(s)}</option>)}
               </select>
             </div>

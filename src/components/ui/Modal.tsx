@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,16 +23,28 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className={cn('relative bg-white rounded-xl shadow-2xl w-full', sizes[size])}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h2 className="text-sm font-bold text-gray-900">{title}</h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg transition text-gray-400 hover:text-gray-600">
-            <X size={16} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 scale-in">
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} />
+      <div className={cn('relative bg-white rounded-2xl shadow-2xl w-full overflow-hidden', sizes[size])}
+        style={{ boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 4, height: 20, borderRadius: 99, background: '#2563eb' }} />
+            <h2 style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{title}</h2>
+          </div>
+          <button onClick={onClose} style={{
+            width: 32, height: 32, borderRadius: 8, border: '1px solid #e2e8f0',
+            background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: '#64748b', transition: 'all 0.15s'
+          }}
+            onMouseEnter={e => { (e.currentTarget.style.background = '#fee2e2'); (e.currentTarget.style.color = '#ef4444') }}
+            onMouseLeave={e => { (e.currentTarget.style.background = '#f8fafc'); (e.currentTarget.style.color = '#64748b') }}
+          >
+            <X size={15} />
           </button>
         </div>
-        <div className="p-5 max-h-[80vh] overflow-y-auto">{children}</div>
+        <div style={{ padding: 20, maxHeight: '80vh', overflowY: 'auto' }}>{children}</div>
       </div>
     </div>
   )

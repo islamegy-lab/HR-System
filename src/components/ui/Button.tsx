@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'outline' | 'ghost' | 'danger' | 'success'
@@ -8,12 +8,14 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode
 }
 
+const base = 'inline-flex items-center gap-1.5 font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+
 const variants = {
-  primary: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm',
-  outline: 'border border-gray-200 hover:bg-gray-50 text-gray-600',
-  ghost:   'hover:bg-gray-100 text-gray-500',
-  danger:  'bg-red-600 hover:bg-red-700 text-white',
-  success: 'bg-green-600 hover:bg-green-700 text-white',
+  primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md',
+  outline: 'border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700',
+  ghost:   'hover:bg-slate-100 text-slate-600',
+  danger:  'bg-red-500 hover:bg-red-600 text-white shadow-sm',
+  success: 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm',
 }
 
 const sizes = {
@@ -25,10 +27,7 @@ const sizes = {
 export function Button({ children, variant = 'primary', size = 'md', loading, icon, className, disabled, ...props }: ButtonProps) {
   return (
     <button
-      className={cn(
-        'inline-flex items-center gap-1.5 font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed',
-        variants[variant], sizes[size], className
-      )}
+      className={cn(base, variants[variant], sizes[size], className)}
       disabled={disabled || loading}
       {...props}
     >

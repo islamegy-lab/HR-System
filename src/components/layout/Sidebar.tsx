@@ -1,85 +1,145 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, Clock, CalendarDays, DollarSign, Briefcase, GraduationCap, BarChart3, Settings, Building2, LogOut } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import {
+  LayoutDashboard, Users, Clock, CalendarDays, DollarSign,
+  Briefcase, GraduationCap, BarChart3, Settings, Building2, LogOut, FileText, MapPin
+} from 'lucide-react'
 
-const groups = [
-  { label: 'عام', items: [{ href: '/dashboard', label: 'لوحة التحكم', icon: LayoutDashboard }] },
-  { label: 'الموظفون', items: [
-    { href: '/employees',   label: 'الموظفون',        icon: Users },
-    { href: '/departments', label: 'الأقسام',          icon: Building2 },
-    { href: '/attendance',  label: 'الحضور والانصراف', icon: Clock },
-    { href: '/leaves',      label: 'الإجازات',         icon: CalendarDays },
-  ]},
-  { label: 'المالية والتطوير', items: [
-    { href: '/payroll',     label: 'الرواتب',          icon: DollarSign },
-    { href: '/performance', label: 'تقييم الأداء',     icon: BarChart3 },
-    { href: '/recruitment', label: 'التوظيف',          icon: Briefcase },
-    { href: '/training',    label: 'التدريب',          icon: GraduationCap },
-  ]},
+const NAV = [
+  {
+    label: 'الرئيسية',
+    items: [
+      { href: '/dashboard',   label: 'لوحة التحكم',       icon: LayoutDashboard },
+    ]
+  },
+  {
+    label: 'الموظفون',
+    items: [
+      { href: '/employees',   label: 'الموظفون',           icon: Users },
+      { href: '/departments', label: 'الأقسام',             icon: Building2 },
+      { href: '/attendance',  label: 'الحضور والانصراف',   icon: Clock },
+      { href: '/leaves',      label: 'الإجازات',            icon: CalendarDays },
+    ]
+  },
+  {
+    label: 'المالية والتطوير',
+    items: [
+      { href: '/payroll',     label: 'الرواتب',             icon: DollarSign },
+      { href: '/performance', label: 'تقييم الأداء',        icon: BarChart3 },
+      { href: '/recruitment', label: 'التوظيف',             icon: Briefcase },
+      { href: '/training',    label: 'التدريب',             icon: GraduationCap },
+    ]
+  },
+  {
+    label: 'الإدارة',
+    items: [
+      { href: '/documents',         label: 'الأوراق الرسمية',   icon: FileText },
+      { href: '/employee/attendance',label: 'بوابة الموظف',      icon: MapPin },
+    ]
+  },
 ]
 
 export function Sidebar() {
-  const pathname = usePathname()
+  const path = usePathname()
 
   return (
-    <aside className="w-56 bg-gray-900 min-h-screen flex flex-col shrink-0">
+    <aside style={{ width: 240, background: '#0f172a', minHeight: '100vh', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+
       {/* Logo */}
-      <div className="px-4 py-5 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shrink-0">
-            <Users className="w-4 h-4 text-white" />
+      <div style={{ padding: '24px 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: 12,
+            background: 'linear-gradient(135deg,#2563eb,#60a5fa)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(37,99,235,0.4)'
+          }}>
+            <Users size={20} color="#fff" />
           </div>
           <div>
-            <p className="text-white text-sm font-bold leading-none">نظام HR</p>
-            <p className="text-gray-500 text-[10px] mt-0.5">الموارد البشرية</p>
+            <p style={{ color: '#fff', fontSize: 14, fontWeight: 700, lineHeight: 1 }}>نظام HR</p>
+            <p style={{ color: '#60a5fa', fontSize: 11, marginTop: 3 }}>الموارد البشرية</p>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
-        {groups.map(group => (
-          <div key={group.label}>
-            <p className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest px-2 mb-1.5">
+      <nav style={{ flex: 1, padding: '16px 12px', overflowY: 'auto' }}>
+        {NAV.map((group, gi) => (
+          <div key={group.label} style={{ marginBottom: 24 }}>
+            <p style={{
+              color: 'rgba(148,163,184,0.6)', fontSize: 10, fontWeight: 700,
+              textTransform: 'uppercase', letterSpacing: '0.12em',
+              padding: '0 10px', marginBottom: 6
+            }}>
               {group.label}
             </p>
-            <div className="space-y-0.5">
-              {group.items.map(({ href, label, icon: Icon }) => {
-                const active = pathname === href || pathname.startsWith(href + '/')
-                return (
-                  <Link key={href} href={href}
-                    className={cn(
-                      'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all',
-                      active ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
-                    )}
-                  >
-                    <Icon size={15} className="shrink-0" />
-                    {label}
-                  </Link>
-                )
-              })}
-            </div>
+            {group.items.map(({ href, label, icon: Icon }) => {
+              const active = path === href || path.startsWith(href + '/')
+              return (
+                <Link key={href} href={href} style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '9px 10px', borderRadius: 10, marginBottom: 2,
+                  fontSize: 13, fontWeight: 500, textDecoration: 'none',
+                  transition: 'all 0.15s ease',
+                  background: active ? 'linear-gradient(135deg,#2563eb,#3b82f6)' : 'transparent',
+                  color: active ? '#fff' : '#94a3b8',
+                  boxShadow: active ? '0 4px 12px rgba(37,99,235,0.3)' : 'none',
+                }}
+                  onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.color = '#fff' } }}
+                  onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#94a3b8' } }}
+                >
+                  <span style={{
+                    width: 30, height: 30, borderRadius: 8, display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    background: active ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)'
+                  }}>
+                    <Icon size={15} />
+                  </span>
+                  {label}
+                </Link>
+              )
+            })}
           </div>
         ))}
       </nav>
 
-      {/* Footer */}
-      <div className="px-3 pb-4 border-t border-white/10 pt-3 space-y-0.5">
-        <Link href="/settings"
-          className={cn('flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all',
-            pathname === '/settings' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
-          )}>
-          <Settings size={15} /> الإعدادات
+      {/* Bottom */}
+      <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <Link href="/settings" style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '9px 10px', borderRadius: 10, marginBottom: 8,
+          fontSize: 13, fontWeight: 500, textDecoration: 'none',
+          color: path === '/settings' ? '#fff' : '#94a3b8',
+          background: path === '/settings' ? 'linear-gradient(135deg,#2563eb,#3b82f6)' : 'transparent',
+        }}>
+          <span style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)' }}>
+            <Settings size={15} />
+          </span>
+          الإعدادات
         </Link>
-        <div className="flex items-center gap-2.5 px-3 py-2 mt-2 rounded-lg bg-white/5">
-          <div className="w-7 h-7 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">م</div>
-          <div className="flex-1 min-w-0">
-            <p className="text-white text-xs font-semibold truncate">مدير النظام</p>
-            <p className="text-gray-500 text-[10px] truncate">admin@hr.com</p>
+
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '10px 12px', borderRadius: 12,
+          background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)'
+        }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+            background: 'linear-gradient(135deg,#2563eb,#60a5fa)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontSize: 13, fontWeight: 700
+          }}>م</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ color: '#f1f5f9', fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>مدير النظام</p>
+            <p style={{ color: '#64748b', fontSize: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>admin@hr.com</p>
           </div>
-          <button className="text-gray-500 hover:text-gray-300 transition shrink-0"><LogOut size={13} /></button>
+          <button style={{ color: '#64748b', background: 'none', border: 'none', cursor: 'pointer', padding: 4, borderRadius: 6 }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#f87171')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}>
+            <LogOut size={14} />
+          </button>
         </div>
       </div>
     </aside>

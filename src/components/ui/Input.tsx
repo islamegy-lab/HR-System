@@ -7,19 +7,20 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export function Input({ label, error, className, ...props }: InputProps) {
   return (
-    <div className="flex flex-col gap-1">
-      {label && <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</label>}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {label && <label style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>{label}</label>}
       <input
-        className={cn(
-          'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white',
-          'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition',
-          'placeholder:text-gray-400',
-          error && 'border-red-400 focus:ring-red-400',
-          className
-        )}
+        className={cn(className)}
+        style={{
+          width: '100%', padding: '9px 12px', border: `1px solid ${error ? '#f87171' : '#e2e8f0'}`,
+          borderRadius: 10, fontSize: 13, color: '#0f172a', background: '#fff', outline: 'none',
+          transition: 'border-color 0.2s'
+        }}
+        onFocus={e => e.target.style.borderColor = '#2563eb'}
+        onBlur={e => e.target.style.borderColor = error ? '#f87171' : '#e2e8f0'}
         {...props}
       />
-      {error && <span className="text-xs text-red-500">{error}</span>}
+      {error && <span style={{ fontSize: 11, color: '#ef4444' }}>{error}</span>}
     </div>
   )
 }
@@ -32,21 +33,23 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 
 export function Select({ label, error, options, className, ...props }: SelectProps) {
   return (
-    <div className="flex flex-col gap-1">
-      {label && <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</label>}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {label && <label style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>{label}</label>}
       <select
-        className={cn(
-          'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white',
-          'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition',
-          error && 'border-red-400',
-          className
-        )}
+        className={cn(className)}
+        style={{
+          width: '100%', padding: '9px 12px', border: `1px solid ${error ? '#f87171' : '#e2e8f0'}`,
+          borderRadius: 10, fontSize: 13, color: '#0f172a', background: '#fff', outline: 'none',
+          transition: 'border-color 0.2s', cursor: 'pointer'
+        }}
+        onFocus={e => e.target.style.borderColor = '#2563eb'}
+        onBlur={e => e.target.style.borderColor = error ? '#f87171' : '#e2e8f0'}
         {...props}
       >
         <option value="">— اختر —</option>
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
-      {error && <span className="text-xs text-red-500">{error}</span>}
+      {error && <span style={{ fontSize: 11, color: '#ef4444' }}>{error}</span>}
     </div>
   )
 }

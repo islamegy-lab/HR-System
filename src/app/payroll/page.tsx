@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { RefreshCw, DollarSign, TrendingUp, Users } from 'lucide-react'
 import { Topbar } from '@/components/layout/Topbar'
 import { Button } from '@/components/ui/Button'
+import { CardHeader, StatCard, Avatar, EmptyState, pageStyle, bodyStyle, cardStyle, thStyle, tdStyle } from '@/components/ui/PageComponents'
 import { payrollApi } from '@/lib/api'
 import { getStatusColor, getStatusLabel, formatCurrency } from '@/lib/utils'
 import type { Payroll } from '@/types'
@@ -33,107 +34,95 @@ export default function PayrollPage() {
   const totalBasic = payrolls.reduce((s, p) => s + p.basic_salary, 0)
   const paidCount  = payrolls.filter(p => p.status === 'paid').length
 
+  const selectStyle = { padding: '7px 12px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 13, color: '#0f172a', background: '#f8fafc', outline: 'none', cursor: 'pointer' }
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={pageStyle}>
       <Topbar title="الرواتب" subtitle={`${MONTHS[month - 1]} ${year}`}
         actions={<Button variant="outline" size="sm" icon={<RefreshCw size={13} />} loading={generating} onClick={handleGenerate}>توليد الرواتب</Button>} />
 
-      <div className="p-6 space-y-4">
-        {/* Period */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 flex items-center gap-3">
-          <label className="text-xs font-semibold text-gray-500">الفترة</label>
-          <select value={month} onChange={e => setMonth(Number(e.target.value))}
-            className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+      <div style={bodyStyle}>
+
+        <div style={{ ...cardStyle, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <label style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>الفترة</label>
+          <select value={month} onChange={e => setMonth(Number(e.target.value))} style={selectStyle}>
             {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
           </select>
-          <select value={year} onChange={e => setYear(Number(e.target.value))}
-            className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+          <select value={year} onChange={e => setYear(Number(e.target.value))} style={selectStyle}>
             {[2023, 2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { label: 'إجمالي الأساسي', value: formatCurrency(totalBasic), icon: DollarSign, bg: 'bg-blue-50',   ic: 'text-blue-600' },
-            { label: 'إجمالي الصافي',  value: formatCurrency(totalNet),   icon: TrendingUp, bg: 'bg-green-50',  ic: 'text-green-600' },
-            { label: 'تم الصرف',       value: `${paidCount} / ${payrolls.length}`, icon: Users, bg: 'bg-indigo-50', ic: 'text-indigo-600' },
-          ].map(s => (
-            <div key={s.label} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-4">
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${s.bg}`}><s.icon size={20} className={s.ic} /></div>
-              <div>
-                <p className="text-lg font-bold text-gray-900">{s.value}</p>
-                <p className="text-xs font-semibold text-gray-600">{s.label}</p>
-              </div>
-            </div>
-          ))}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+          <StatCard label="إجمالي الأساسي" value={formatCurrency(totalBasic)} icon={DollarSign} bg="#eff6ff" ic="#2563eb" delay={0} />
+          <StatCard label="إجمالي الصافي"  value={formatCurrency(totalNet)}   icon={TrendingUp} bg="#f0fdf4" ic="#16a34a" delay={60} />
+          <StatCard label="تم الصرف"        value={`${paidCount} / ${payrolls.length}`} icon={Users} bg="#faf5ff" ic="#7c3aed" delay={120} />
         </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                {['الموظف','القسم','الأساسي','بدل السكن','بدل النقل','إضافي','خصومات','ضريبة','الصافي','الحالة',''].map(h => (
-                  <th key={h} className="text-right text-xs font-semibold text-gray-500 px-4 py-3 whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {loading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <tr key={i}><td colSpan={11} className="px-4 py-3"><div className="h-6 bg-gray-100 rounded animate-pulse" /></td></tr>
-                ))
-              ) : payrolls.length === 0 ? (
-                <tr><td colSpan={11}>
-                  <div className="flex flex-col items-center justify-center py-14 text-gray-400">
-                    <DollarSign size={32} className="mb-2 opacity-20" />
-                    <p className="text-sm">لا توجد رواتب لهذه الفترة</p>
-                    <button onClick={handleGenerate} className="text-xs text-indigo-600 hover:underline mt-1">اضغط لتوليد الرواتب</button>
-                  </div>
-                </td></tr>
-              ) : payrolls.map(p => (
-                <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 text-xs font-bold shrink-0">{p.employee?.first_name?.[0]}</div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{p.employee?.first_name} {p.employee?.last_name}</p>
-                        <p className="text-xs text-gray-400 font-mono">{p.employee?.employee_number}</p>
+        <div style={cardStyle} className="slide-up">
+          <CardHeader title="كشف الرواتب"
+            right={<span style={{ fontSize: 11, background: '#eff6ff', color: '#2563eb', padding: '3px 10px', borderRadius: 99, fontWeight: 600 }}>{payrolls.length} موظف</span>} />
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>{['الموظف','القسم','الأساسي','بدل السكن','بدل النقل','إضافي','خصومات','ضريبة','الصافي','الحالة',''].map(h => (
+                  <th key={h} style={thStyle}>{h}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {loading ? Array.from({ length: 4 }).map((_, i) => (
+                  <tr key={i}><td colSpan={11} style={{ padding: '10px 16px' }}><div className="shimmer" style={{ height: 20, borderRadius: 8 }} /></td></tr>
+                )) : payrolls.length === 0 ? (
+                  <tr><td colSpan={11}>
+                    <EmptyState icon={DollarSign} text="لا توجد رواتب لهذه الفترة"
+                      action={<button onClick={handleGenerate} style={{ fontSize: 12, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>اضغط لتوليد الرواتب</button>} />
+                  </td></tr>
+                ) : payrolls.map(p => (
+                  <tr key={p.id} style={{ transition: 'background 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#f8fafc')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '#fff')}>
+                    <td style={tdStyle}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <Avatar name={p.employee?.first_name || '؟'} />
+                        <div>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{p.employee?.first_name} {p.employee?.last_name}</p>
+                          <p style={{ fontSize: 11, color: '#94a3b8', fontFamily: 'monospace' }}>{p.employee?.employee_number}</p>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{(p.employee as any)?.department?.name_ar || '—'}</td>
-                  <td className="px-4 py-3 text-sm font-semibold text-gray-800">{formatCurrency(p.basic_salary)}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{formatCurrency(p.housing_allowance)}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{formatCurrency(p.transport_allowance)}</td>
-                  <td className="px-4 py-3 text-sm font-semibold text-green-600">{formatCurrency(p.overtime_pay)}</td>
-                  <td className="px-4 py-3 text-sm text-red-500">{formatCurrency(p.deductions)}</td>
-                  <td className="px-4 py-3 text-sm text-red-500">{formatCurrency(p.tax)}</td>
-                  <td className="px-4 py-3 text-sm font-bold text-indigo-700">{formatCurrency(p.net_salary)}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(p.status)}`}>{getStatusLabel(p.status)}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {p.status !== 'paid' && (
-                      <button onClick={() => handlePay(p.id)} className="px-3 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-semibold hover:bg-green-100 transition border border-green-200">صرف</button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            {payrolls.length > 0 && (
-              <tfoot>
-                <tr className="bg-gray-50 border-t-2 border-gray-200">
-                  <td colSpan={2} className="px-4 py-3 text-xs font-bold text-gray-600">الإجمالي</td>
-                  <td className="px-4 py-3 text-sm font-bold text-gray-900">{formatCurrency(totalBasic)}</td>
-                  <td colSpan={5} />
-                  <td className="px-4 py-3 text-sm font-bold text-indigo-700">{formatCurrency(totalNet)}</td>
-                  <td colSpan={2} />
-                </tr>
-              </tfoot>
-            )}
-          </table>
+                    </td>
+                    <td style={{ ...tdStyle, color: '#64748b', fontSize: 12 }}>{(p.employee as any)?.department?.name_ar || '—'}</td>
+                    <td style={{ ...tdStyle, fontWeight: 600 }}>{formatCurrency(p.basic_salary)}</td>
+                    <td style={tdStyle}>{formatCurrency(p.housing_allowance)}</td>
+                    <td style={tdStyle}>{formatCurrency(p.transport_allowance)}</td>
+                    <td style={{ ...tdStyle, color: '#16a34a', fontWeight: 600 }}>{formatCurrency(p.overtime_pay)}</td>
+                    <td style={{ ...tdStyle, color: '#e11d48' }}>{formatCurrency(p.deductions)}</td>
+                    <td style={{ ...tdStyle, color: '#e11d48' }}>{formatCurrency(p.tax)}</td>
+                    <td style={{ ...tdStyle, fontWeight: 700, color: '#2563eb', fontSize: 14 }}>{formatCurrency(p.net_salary)}</td>
+                    <td style={tdStyle}><span className={`badge ${getStatusColor(p.status)}`}>{getStatusLabel(p.status)}</span></td>
+                    <td style={tdStyle}>
+                      {p.status !== 'paid' && (
+                        <button onClick={() => handlePay(p.id)}
+                          style={{ padding: '5px 12px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                          صرف
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              {payrolls.length > 0 && (
+                <tfoot>
+                  <tr style={{ background: '#f8fafc', borderTop: '2px solid #e2e8f0' }}>
+                    <td colSpan={2} style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: '#475569' }}>الإجمالي</td>
+                    <td style={{ padding: '12px 16px', fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{formatCurrency(totalBasic)}</td>
+                    <td colSpan={5} />
+                    <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 800, color: '#2563eb' }}>{formatCurrency(totalNet)}</td>
+                    <td colSpan={2} />
+                  </tr>
+                </tfoot>
+              )}
+            </table>
+          </div>
         </div>
       </div>
     </div>

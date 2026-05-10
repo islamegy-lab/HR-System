@@ -17,6 +17,14 @@ const TABS = [
   { value: 'terminated', label: 'منتهي' },
 ]
 
+const S = {
+  page: { minHeight: '100vh', background: '#f1f5f9' },
+  body: { padding: 24, display: 'flex', flexDirection: 'column' as const, gap: 16 },
+  card: { background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', overflow: 'hidden' },
+  th: { padding: '11px 16px', textAlign: 'right' as const, fontSize: 11, fontWeight: 600, color: '#64748b', background: '#f8fafc', borderBottom: '1px solid #f1f5f9', whiteSpace: 'nowrap' as const },
+  td: { padding: '12px 16px', fontSize: 13, color: '#334155', borderBottom: '1px solid #f8fafc' },
+}
+
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([])
   const [loading, setLoading] = useState(true)
@@ -36,94 +44,122 @@ export default function EmployeesPage() {
   useEffect(() => { load() }, [load])
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={S.page}>
       <Topbar title="الموظفون" subtitle={`${employees.length} موظف`}
         actions={<Button size="sm" icon={<Plus size={14} />} onClick={() => { setSelected(null); setShowForm(true) }}>موظف جديد</Button>} />
 
-      <div className="p-6 space-y-4">
-        {/* Filter Bar */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 flex flex-wrap items-center gap-3">
-          <div className="relative">
-            <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+      <div style={S.body}>
+
+        {/* Filters */}
+        <div style={{ ...S.card, padding: '12px 16px', display: 'flex', flexWrap: 'wrap' as const, alignItems: 'center', gap: 12 }}>
+          <div style={{ position: 'relative' }}>
+            <Search size={14} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="بحث بالاسم أو الرقم..."
-              className="pr-8 pl-3 py-1.5 border border-gray-200 rounded-lg text-sm w-52 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition placeholder:text-gray-400" />
+              style={{ paddingRight: 32, paddingLeft: 12, paddingTop: 8, paddingBottom: 8, border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 13, width: 220, color: '#0f172a', background: '#f8fafc', outline: 'none' }}
+              onFocus={e => e.target.style.borderColor = '#2563eb'}
+              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+            />
           </div>
-          <div className="flex gap-0.5 bg-gray-100 p-1 rounded-lg">
+          <div style={{ display: 'flex', gap: 4, background: '#f1f5f9', padding: 4, borderRadius: 10 }}>
             {TABS.map(t => (
-              <button key={t.value} onClick={() => setTab(t.value)}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${tab === t.value ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
-                {t.label}
-              </button>
+              <button key={t.value} onClick={() => setTab(t.value)} style={{
+                padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
+                background: tab === t.value ? '#2563eb' : 'transparent',
+                color: tab === t.value ? '#fff' : '#64748b',
+                transition: 'all 0.15s',
+                boxShadow: tab === t.value ? '0 2px 8px rgba(37,99,235,0.3)' : 'none'
+              }}>{t.label}</button>
             ))}
           </div>
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                <th className="w-10 px-4 py-3"><input type="checkbox" className="rounded accent-indigo-600" /></th>
-                {['الموظف', 'الرقم الوظيفي', 'القسم', 'المسمى الوظيفي', 'تاريخ التعيين', 'نوع العقد', 'الحالة', ''].map(h => (
-                  <th key={h} className="text-right text-xs font-semibold text-gray-500 px-4 py-3 whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i}><td colSpan={9} className="px-4 py-3"><div className="h-6 bg-gray-100 rounded animate-pulse" /></td></tr>
-                ))
-              ) : employees.length === 0 ? (
-                <tr><td colSpan={9}>
-                  <div className="flex flex-col items-center justify-center py-14 text-gray-400">
-                    <UserX size={36} className="mb-2 opacity-20" />
-                    <p className="text-sm">لا يوجد موظفون</p>
-                    <button onClick={() => setShowForm(true)} className="text-xs text-indigo-600 hover:underline mt-1">إضافة أول موظف</button>
-                  </div>
-                </td></tr>
-              ) : employees.map(emp => (
-                <tr key={emp.id} className="hover:bg-gray-50 transition-colors group">
-                  <td className="px-4 py-3"><input type="checkbox" className="rounded accent-indigo-600" /></td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm shrink-0">
-                        {emp.photo_url ? <img src={emp.photo_url} className="w-8 h-8 rounded-full object-cover" alt="" /> : emp.first_name[0]}
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{emp.first_name} {emp.last_name}</p>
-                        <p className="text-xs text-gray-400">{emp.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500 font-mono">{emp.employee_number}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{emp.department?.name_ar || '—'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{emp.job_position?.title_ar || '—'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{formatDate(emp.hire_date)}</td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">{getStatusLabel(emp.contract_type)}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(emp.status)}`}>{getStatusLabel(emp.status)}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => setViewing(emp)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition"><Eye size={14} /></button>
-                      <button onClick={() => { setSelected(emp); setShowForm(true) }} className="p-1.5 hover:bg-indigo-50 rounded-lg text-gray-400 hover:text-indigo-600 transition"><Edit size={14} /></button>
-                      <button onClick={async () => { if (confirm('إنهاء خدمة هذا الموظف؟')) { await employeesApi.delete(emp.id); load() } }} className="p-1.5 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500 transition"><UserX size={14} /></button>
-                    </div>
-                  </td>
+        <div style={S.card} className="slide-up">
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 4, height: 20, borderRadius: 99, background: '#2563eb' }} />
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>قائمة الموظفين</span>
+            <span style={{ marginRight: 'auto', fontSize: 11, background: '#eff6ff', color: '#2563eb', padding: '3px 10px', borderRadius: 99, fontWeight: 600 }}>{employees.length} موظف</span>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={S.th}><input type="checkbox" /></th>
+                  {['الموظف', 'الرقم الوظيفي', 'القسم', 'المسمى الوظيفي', 'تاريخ التعيين', 'نوع العقد', 'الحالة', ''].map(h => (
+                    <th key={h} style={S.th}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {loading ? Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}><td colSpan={9} style={{ padding: '10px 16px' }}><div className="shimmer" style={{ height: 20, borderRadius: 8 }} /></td></tr>
+                )) : employees.length === 0 ? (
+                  <tr><td colSpan={9}>
+                    <div style={{ padding: '48px 20px', textAlign: 'center', color: '#94a3b8' }}>
+                      <UserX size={36} style={{ margin: '0 auto 8px', opacity: 0.3 }} />
+                      <p style={{ fontSize: 13 }}>لا يوجد موظفون</p>
+                      <button onClick={() => setShowForm(true)} style={{ fontSize: 12, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', marginTop: 4, fontWeight: 600 }}>إضافة أول موظف</button>
+                    </div>
+                  </td></tr>
+                ) : employees.map(emp => (
+                  <tr key={emp.id} style={{ transition: 'background 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#f8fafc')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '#fff')}>
+                    <td style={S.td}><input type="checkbox" /></td>
+                    <td style={S.td}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,#2563eb,#60a5fa)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
+                          {emp.photo_url ? <img src={emp.photo_url} style={{ width: 34, height: 34, borderRadius: 10, objectFit: 'cover' }} alt="" /> : emp.first_name[0]}
+                        </div>
+                        <div>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{emp.first_name} {emp.last_name}</p>
+                          <p style={{ fontSize: 11, color: '#94a3b8' }}>{emp.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ ...S.td, fontFamily: 'monospace', fontSize: 12 }}>{emp.employee_number}</td>
+                    <td style={S.td}>{emp.department?.name_ar || '—'}</td>
+                    <td style={S.td}>{emp.job_position?.title_ar || '—'}</td>
+                    <td style={S.td}>{formatDate(emp.hire_date)}</td>
+                    <td style={S.td}>
+                      <span style={{ fontSize: 11, background: '#f1f5f9', color: '#475569', padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>{getStatusLabel(emp.contract_type)}</span>
+                    </td>
+                    <td style={S.td}>
+                      <span className={`badge ${getStatusColor(emp.status)}`}>{getStatusLabel(emp.status)}</span>
+                    </td>
+                    <td style={S.td}>
+                      <div style={{ display: 'flex', gap: 4, opacity: 0, transition: 'opacity 0.15s' }}
+                        onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                        className="row-actions">
+                        <button onClick={() => setViewing(emp)} style={{ padding: 6, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', color: '#64748b' }}
+                          onMouseEnter={e => { (e.currentTarget.style.background = '#eff6ff'); (e.currentTarget.style.color = '#2563eb') }}
+                          onMouseLeave={e => { (e.currentTarget.style.background = '#fff'); (e.currentTarget.style.color = '#64748b') }}>
+                          <Eye size={13} />
+                        </button>
+                        <button onClick={() => { setSelected(emp); setShowForm(true) }} style={{ padding: 6, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', color: '#64748b' }}
+                          onMouseEnter={e => { (e.currentTarget.style.background = '#eff6ff'); (e.currentTarget.style.color = '#2563eb') }}
+                          onMouseLeave={e => { (e.currentTarget.style.background = '#fff'); (e.currentTarget.style.color = '#64748b') }}>
+                          <Edit size={13} />
+                        </button>
+                        <button onClick={async () => { if (confirm('إنهاء خدمة هذا الموظف؟')) { await employeesApi.delete(emp.id); load() } }} style={{ padding: 6, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', color: '#64748b' }}
+                          onMouseEnter={e => { (e.currentTarget.style.background = '#fff1f2'); (e.currentTarget.style.color = '#e11d48') }}
+                          onMouseLeave={e => { (e.currentTarget.style.background = '#fff'); (e.currentTarget.style.color = '#64748b') }}>
+                          <UserX size={13} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {employees.length > 0 && (
-            <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
-              <p className="text-xs text-gray-400">إجمالي {employees.length} موظف</p>
-              <div className="flex items-center gap-1">
-                <button className="px-2.5 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white transition text-gray-500">السابق</button>
-                <span className="px-2.5 py-1 text-xs bg-indigo-600 text-white rounded-lg">1</span>
-                <button className="px-2.5 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white transition text-gray-500">التالي</button>
+            <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc' }}>
+              <p style={{ fontSize: 12, color: '#94a3b8' }}>إجمالي {employees.length} موظف</p>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <button style={{ padding: '5px 12px', fontSize: 12, border: '1px solid #e2e8f0', borderRadius: 8, background: '#fff', cursor: 'pointer', color: '#475569' }}>السابق</button>
+                <button style={{ padding: '5px 12px', fontSize: 12, border: 'none', borderRadius: 8, background: '#2563eb', cursor: 'pointer', color: '#fff' }}>1</button>
+                <button style={{ padding: '5px 12px', fontSize: 12, border: '1px solid #e2e8f0', borderRadius: 8, background: '#fff', cursor: 'pointer', color: '#475569' }}>التالي</button>
               </div>
             </div>
           )}
@@ -136,32 +172,32 @@ export default function EmployeesPage() {
 
       <Modal open={!!viewing} onClose={() => setViewing(null)} title="ملف الموظف" size="lg">
         {viewing && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-              <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">{viewing.first_name[0]}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: 16, borderRadius: 12, background: '#eff6ff', border: '1px solid #bfdbfe' }}>
+              <div style={{ width: 56, height: 56, borderRadius: 14, background: 'linear-gradient(135deg,#2563eb,#60a5fa)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 22, fontWeight: 800 }}>{viewing.first_name[0]}</div>
               <div>
-                <h3 className="text-base font-bold text-gray-900">{viewing.first_name} {viewing.last_name}</h3>
-                <p className="text-sm text-gray-500">{viewing.job_position?.title_ar || '—'}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(viewing.status)}`}>{getStatusLabel(viewing.status)}</span>
-                  <span className="text-xs text-gray-400 font-mono">{viewing.employee_number}</span>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{viewing.first_name} {viewing.last_name}</h3>
+                <p style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>{viewing.job_position?.title_ar || '—'}</p>
+                <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+                  <span className={`badge ${getStatusColor(viewing.status)}`}>{getStatusLabel(viewing.status)}</span>
+                  <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: 'monospace' }}>{viewing.employee_number}</span>
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {[
                 ['البريد الإلكتروني', viewing.email], ['الهاتف', viewing.phone || '—'],
                 ['القسم', viewing.department?.name_ar || '—'], ['تاريخ التعيين', formatDate(viewing.hire_date)],
                 ['نوع العقد', getStatusLabel(viewing.contract_type)], ['الجنسية', viewing.nationality || '—'],
                 ['رقم الهوية', viewing.national_id || '—'], ['الراتب الأساسي', viewing.basic_salary ? `${viewing.basic_salary.toLocaleString()} ر.س` : '—'],
               ].map(([k, v]) => (
-                <div key={k} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">{k}</p>
-                  <p className="text-sm font-semibold text-gray-800">{v}</p>
+                <div key={k} style={{ background: '#f8fafc', borderRadius: 10, padding: '10px 14px', border: '1px solid #f1f5f9' }}>
+                  <p style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{k}</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{v}</p>
                 </div>
               ))}
             </div>
-            <div className="flex justify-end">
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button size="sm" variant="outline" icon={<Edit size={13} />} onClick={() => { setViewing(null); setSelected(viewing); setShowForm(true) }}>تعديل</Button>
             </div>
           </div>

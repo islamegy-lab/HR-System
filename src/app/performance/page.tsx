@@ -5,6 +5,7 @@ import { Topbar } from '@/components/layout/Topbar'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { Input, Select } from '@/components/ui/Input'
+import { pageStyle, bodyStyle, cardStyle, EmptyState, Avatar } from '@/components/ui/PageComponents'
 import { supabase } from '@/lib/supabase'
 import { employeesApi } from '@/lib/api'
 import { getStatusColor, getStatusLabel, formatDate } from '@/lib/utils'
@@ -36,56 +37,51 @@ export default function PerformancePage() {
     setSaving(false); setShowForm(false); load()
   }
 
-  const ScoreBar = ({ value }: { value: number }) => (
-    <div className="flex items-center gap-2">
-      <div className="flex-1 bg-gray-100 rounded-full h-1.5">
-        <div className="bg-indigo-500 h-1.5 rounded-full transition-all" style={{ width: `${(value / 10) * 100}%` }} />
-      </div>
-      <span className="text-xs font-semibold text-gray-600 w-5 text-left">{value}</span>
-    </div>
-  )
+  const scoreColor = (v: number) => v >= 8 ? '#16a34a' : v >= 5 ? '#2563eb' : '#e11d48'
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={pageStyle}>
       <Topbar title="تقييم الأداء" subtitle={`${reviews.length} تقييم`}
         actions={<Button size="sm" icon={<Plus size={14} />} onClick={() => setShowForm(true)}>تقييم جديد</Button>} />
 
-      <div className="p-6 space-y-4">
+      <div style={bodyStyle}>
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-white rounded-xl border border-gray-100 h-48 animate-pulse" />)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+            {Array.from({ length: 3 }).map((_, i) => <div key={i} className="shimmer" style={{ height: 200, borderRadius: 16 }} />)}
           </div>
         ) : reviews.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-            <BarChart3 size={40} className="mb-3 opacity-20" />
-            <p className="text-sm">لا توجد تقييمات</p>
-          </div>
+          <div style={cardStyle}><EmptyState icon={BarChart3} text="لا توجد تقييمات" /></div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {reviews.map(r => (
-              <div key={r.id} className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-5">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold shrink-0">{r.employee?.first_name?.[0]}</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-gray-900 text-sm truncate">{r.employee?.first_name} {r.employee?.last_name}</p>
-                    <p className="text-xs text-gray-500 truncate">{(r.employee as any)?.job_position?.title_ar}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+            {reviews.map((r, i) => (
+              <div key={r.id} className="card slide-up" style={{ padding: 20, animationDelay: `${i * 50}ms` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                  <Avatar name={r.employee?.first_name || '؟'} size={40} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.employee?.first_name} {r.employee?.last_name}</p>
+                    <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(r.employee as any)?.job_position?.title_ar}</p>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Star size={14} className="text-yellow-400 fill-yellow-400" />
-                    <span className="font-bold text-gray-900 text-sm">{r.score?.toFixed(1)}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#fffbeb', padding: '4px 10px', borderRadius: 8, border: '1px solid #fde68a', flexShrink: 0 }}>
+                    <Star size={13} color="#d97706" fill="#d97706" />
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#92400e' }}>{r.score?.toFixed(1)}</span>
                   </div>
                 </div>
-                <div className="space-y-2 mb-3">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
                   {[['الأهداف', r.goals_score], ['المهارات', r.skills_score], ['السلوك', r.behavior_score]].map(([label, val]) => (
                     <div key={label as string}>
-                      <p className="text-[10px] text-gray-400 mb-1">{label}</p>
-                      <ScoreBar value={(val as number) || 0} />
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span style={{ fontSize: 11, color: '#64748b' }}>{label}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: scoreColor(val as number) }}>{val}/10</span>
+                      </div>
+                      <div style={{ height: 6, background: '#f1f5f9', borderRadius: 99, overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${((val as number) / 10) * 100}%`, background: scoreColor(val as number), borderRadius: 99, transition: 'width 0.7s ease' }} />
+                      </div>
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t border-gray-50">
-                  <span className="text-xs text-gray-400">{r.review_period} · {formatDate(r.review_date)}</span>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(r.status)}`}>{getStatusLabel(r.status)}</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
+                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{r.review_period} · {formatDate(r.review_date)}</span>
+                  <span className={`badge ${getStatusColor(r.status)}`}>{getStatusLabel(r.status)}</span>
                 </div>
               </div>
             ))}
@@ -94,8 +90,8 @@ export default function PerformancePage() {
       </div>
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title="تقييم أداء جديد" size="lg">
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <Select label="الموظف *" value={form.employee_id} onChange={e => setForm(f => ({ ...f, employee_id: e.target.value }))}
               options={employees.map(e => ({ value: e.id, label: `${e.first_name} ${e.last_name}` }))} />
             <Input label="تاريخ التقييم *" type="date" value={form.review_date} onChange={e => setForm(f => ({ ...f, review_date: e.target.value }))} />
@@ -103,23 +99,26 @@ export default function PerformancePage() {
             <Select label="الحالة" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
               options={[{ value: 'draft', label: 'مسودة' }, { value: 'confirmed', label: 'مؤكد' }]} />
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
             {[{ key: 'goals_score', label: 'الأهداف' }, { key: 'skills_score', label: 'المهارات' }, { key: 'behavior_score', label: 'السلوك' }].map(f => (
-              <div key={f.key} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                <label className="text-xs font-semibold text-gray-500 block mb-2">{f.label} (0-10)</label>
+              <div key={f.key} style={{ background: '#f8fafc', borderRadius: 12, padding: 14, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 10 }}>{f.label} (0-10)</label>
                 <input type="range" min={0} max={10} step={0.5} value={(form as any)[f.key]}
                   onChange={e => setForm(prev => ({ ...prev, [f.key]: Number(e.target.value) }))}
-                  className="w-full accent-indigo-600" />
-                <p className="text-center text-lg font-bold text-indigo-600 mt-1">{(form as any)[f.key]}</p>
+                  style={{ width: '100%', accentColor: '#2563eb' }} />
+                <p style={{ fontSize: 22, fontWeight: 800, color: '#2563eb', marginTop: 6 }}>{(form as any)[f.key]}</p>
               </div>
             ))}
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">التعليقات</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>التعليقات</label>
             <textarea value={form.comments} onChange={e => setForm(f => ({ ...f, comments: e.target.value }))} rows={3}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition resize-none" />
+              style={{ padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 13, color: '#0f172a', resize: 'none', outline: 'none', fontFamily: 'Cairo, sans-serif' }}
+              onFocus={e => e.target.style.borderColor = '#2563eb'}
+              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+            />
           </div>
-          <div className="flex gap-2 justify-end">
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
             <Button variant="outline" onClick={() => setShowForm(false)}>إلغاء</Button>
             <Button loading={saving} onClick={handleSave}>حفظ التقييم</Button>
           </div>

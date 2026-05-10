@@ -15,23 +15,23 @@ export function formatDate(date: string) {
 
 export function getStatusColor(status: string) {
   const colors: Record<string, string> = {
-    active: 'bg-green-100 text-green-800',
-    inactive: 'bg-gray-100 text-gray-800',
-    on_leave: 'bg-yellow-100 text-yellow-800',
-    terminated: 'bg-red-100 text-red-800',
-    pending: 'bg-yellow-100 text-yellow-800',
-    approved: 'bg-green-100 text-green-800',
-    rejected: 'bg-red-100 text-red-800',
-    draft: 'bg-gray-100 text-gray-800',
-    confirmed: 'bg-blue-100 text-blue-800',
-    paid: 'bg-green-100 text-green-800',
-    present: 'bg-green-100 text-green-800',
-    absent: 'bg-red-100 text-red-800',
-    late: 'bg-orange-100 text-orange-800',
-    open: 'bg-blue-100 text-blue-800',
-    closed: 'bg-gray-100 text-gray-800',
+    active:     'bg-emerald-50 text-emerald-700',
+    inactive:   'bg-slate-100 text-slate-600',
+    on_leave:   'bg-amber-50 text-amber-700',
+    terminated: 'bg-red-50 text-red-700',
+    pending:    'bg-amber-50 text-amber-700',
+    approved:   'bg-emerald-50 text-emerald-700',
+    rejected:   'bg-red-50 text-red-700',
+    draft:      'bg-slate-100 text-slate-600',
+    confirmed:  'bg-blue-50 text-blue-700',
+    paid:       'bg-emerald-50 text-emerald-700',
+    present:    'bg-emerald-50 text-emerald-700',
+    absent:     'bg-red-50 text-red-700',
+    late:       'bg-orange-50 text-orange-700',
+    open:       'bg-blue-50 text-blue-700',
+    closed:     'bg-slate-100 text-slate-600',
   }
-  return colors[status] || 'bg-gray-100 text-gray-800'
+  return colors[status] || 'bg-slate-100 text-slate-600'
 }
 
 export function getStatusLabel(status: string) {

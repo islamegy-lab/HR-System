@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import { Cairo } from 'next/font/google'
 import './globals.css'
 import { Sidebar } from '@/components/layout/Sidebar'
+import { Footer } from '@/components/layout/Footer'
 
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800'],
   display: 'swap',
 })
 
@@ -17,10 +18,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={cairo.className}>
-        <div className="flex min-h-screen">
+      <body className={cairo.className} style={{ background: '#f1f5f9' }}>
+        <div style={{ display: 'flex', minHeight: '100vh' }}>
           <Sidebar />
-          <main className="flex-1 min-w-0 overflow-auto bg-gray-50">{children}</main>
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', background: '#f1f5f9' }}>
+            <main style={{ flex: 1 }}>{children}</main>
+            <Footer />
+          </div>
         </div>
       </body>
     </html>

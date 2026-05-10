@@ -5,13 +5,14 @@ import { Topbar } from '@/components/layout/Topbar'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { Input, Select } from '@/components/ui/Input'
+import { CardHeader, StatCard, Avatar, EmptyState, TabBar, pageStyle, bodyStyle, cardStyle, thStyle, tdStyle } from '@/components/ui/PageComponents'
 import { leavesApi, employeesApi } from '@/lib/api'
 import { getStatusColor, getStatusLabel, formatDate } from '@/lib/utils'
 import type { LeaveRequest, LeaveType, Employee } from '@/types'
 
 const TABS = [
   { value: '', label: 'الكل' },
-  { value: 'pending', label: 'معلقة' },
+  { value: 'pending',  label: 'معلقة' },
   { value: 'approved', label: 'موافق عليها' },
   { value: 'rejected', label: 'مرفوضة' },
 ]
@@ -52,132 +53,104 @@ export default function LeavesPage() {
   const rejected = leaves.filter(l => l.status === 'rejected').length
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={pageStyle}>
       <Topbar title="الإجازات" subtitle={`${leaves.length} طلب`}
         actions={<Button size="sm" icon={<Plus size={14} />} onClick={() => setShowForm(true)}>طلب إجازة</Button>} />
 
-      <div className="p-6 space-y-4">
+      <div style={bodyStyle}>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { label: 'قيد الانتظار', value: pending,  bg: 'bg-yellow-50', ic: 'text-yellow-600' },
-            { label: 'موافق عليها',  value: approved, bg: 'bg-green-50',  ic: 'text-green-600' },
-            { label: 'مرفوضة',       value: rejected, bg: 'bg-red-50',    ic: 'text-red-600' },
-          ].map(s => (
-            <div key={s.label} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-4">
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${s.bg}`}>
-                <CalendarDays size={20} className={s.ic} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{s.value}</p>
-                <p className="text-xs font-semibold text-gray-600">{s.label}</p>
-              </div>
-            </div>
-          ))}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+          <StatCard label="قيد الانتظار" value={pending}  icon={CalendarDays} bg="#fffbeb" ic="#d97706" border="#fde68a" delay={0} />
+          <StatCard label="موافق عليها"  value={approved} icon={CalendarDays} bg="#f0fdf4" ic="#16a34a" border="#bbf7d0" delay={60} />
+          <StatCard label="مرفوضة"       value={rejected} icon={CalendarDays} bg="#fff1f2" ic="#e11d48" border="#fecdd3" delay={120} />
         </div>
 
-        {/* Tabs */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 flex items-center gap-3">
-          <div className="flex gap-0.5 bg-gray-100 p-1 rounded-lg">
-            {TABS.map(t => (
-              <button key={t.value} onClick={() => setTab(t.value)}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${tab === t.value ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
-                {t.label}
-                {t.value === 'pending' && pending > 0 && (
-                  <span className="mr-1.5 bg-yellow-100 text-yellow-700 text-[10px] px-1.5 py-0.5 rounded-full font-semibold">{pending}</span>
-                )}
-              </button>
-            ))}
-          </div>
+        <div style={{ ...cardStyle, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <TabBar
+            tabs={TABS.map(t => ({ ...t, count: t.value === 'pending' ? pending : undefined }))}
+            value={tab} onChange={setTab}
+          />
         </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                {['الموظف', 'نوع الإجازة', 'من', 'إلى', 'الأيام', 'السبب', 'الحالة', 'إجراءات'].map(h => (
-                  <th key={h} className="text-right text-xs font-semibold text-gray-500 px-4 py-3 whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {loading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <tr key={i}><td colSpan={8} className="px-4 py-3"><div className="h-6 bg-gray-100 rounded animate-pulse" /></td></tr>
-                ))
-              ) : leaves.length === 0 ? (
-                <tr><td colSpan={8}>
-                  <div className="flex flex-col items-center justify-center py-14 text-gray-400">
-                    <CalendarDays size={32} className="mb-2 opacity-20" />
-                    <p className="text-sm">لا توجد طلبات</p>
-                  </div>
-                </td></tr>
-              ) : leaves.map(l => (
-                <tr key={l.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 text-xs font-bold shrink-0">{l.employee?.first_name?.[0]}</div>
-                      <span className="text-sm font-semibold text-gray-900">{l.employee?.first_name} {l.employee?.last_name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">{l.leave_type?.name_ar}</span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{formatDate(l.start_date)}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{formatDate(l.end_date)}</td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm font-bold text-indigo-600">{l.days_count}</span>
-                    <span className="text-xs text-gray-400 mr-1">يوم</span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-400 max-w-xs truncate">{l.reason || '—'}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(l.status)}`}>{getStatusLabel(l.status)}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {l.status === 'pending' && (
-                      <div className="flex gap-1.5">
-                        <button onClick={() => leavesApi.updateStatus(l.id, 'approved').then(load)}
-                          className="flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-semibold hover:bg-green-100 transition border border-green-200">
-                          <Check size={11} /> موافقة
-                        </button>
-                        <button onClick={() => leavesApi.updateStatus(l.id, 'rejected').then(load)}
-                          className="flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-700 rounded-lg text-xs font-semibold hover:bg-red-100 transition border border-red-200">
-                          <X size={11} /> رفض
-                        </button>
+        <div style={cardStyle} className="slide-up">
+          <CardHeader title="قائمة طلبات الإجازة" />
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>{['الموظف', 'نوع الإجازة', 'من', 'إلى', 'الأيام', 'السبب', 'الحالة', 'إجراءات'].map(h => (
+                  <th key={h} style={thStyle}>{h}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {loading ? Array.from({ length: 4 }).map((_, i) => (
+                  <tr key={i}><td colSpan={8} style={{ padding: '10px 16px' }}><div className="shimmer" style={{ height: 20, borderRadius: 8 }} /></td></tr>
+                )) : leaves.length === 0 ? (
+                  <tr><td colSpan={8}><EmptyState icon={CalendarDays} text="لا توجد طلبات" /></td></tr>
+                ) : leaves.map(l => (
+                  <tr key={l.id} style={{ transition: 'background 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#f8fafc')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '#fff')}>
+                    <td style={tdStyle}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <Avatar name={l.employee?.first_name || '؟'} />
+                        <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{l.employee?.first_name} {l.employee?.last_name}</span>
                       </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </td>
+                    <td style={tdStyle}>
+                      <span style={{ fontSize: 11, background: '#eff6ff', color: '#2563eb', padding: '3px 10px', borderRadius: 99, fontWeight: 600 }}>{l.leave_type?.name_ar}</span>
+                    </td>
+                    <td style={tdStyle}>{formatDate(l.start_date)}</td>
+                    <td style={tdStyle}>{formatDate(l.end_date)}</td>
+                    <td style={tdStyle}><span style={{ fontWeight: 700, color: '#2563eb' }}>{l.days_count}</span><span style={{ fontSize: 11, color: '#94a3b8', marginRight: 3 }}>يوم</span></td>
+                    <td style={{ ...tdStyle, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#94a3b8', fontSize: 12 }}>{l.reason || '—'}</td>
+                    <td style={tdStyle}><span className={`badge ${getStatusColor(l.status)}`}>{getStatusLabel(l.status)}</span></td>
+                    <td style={tdStyle}>
+                      {l.status === 'pending' && (
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button onClick={() => leavesApi.updateStatus(l.id, 'approved').then(load)}
+                            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                            <Check size={11} /> موافقة
+                          </button>
+                          <button onClick={() => leavesApi.updateStatus(l.id, 'rejected').then(load)}
+                            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: '#fff1f2', color: '#e11d48', border: '1px solid #fecdd3', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                            <X size={11} /> رفض
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title="طلب إجازة جديد" size="md">
-        <div className="space-y-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Select label="الموظف *" value={form.employee_id} onChange={e => setForm(f => ({ ...f, employee_id: e.target.value }))}
             options={employees.map(e => ({ value: e.id, label: `${e.first_name} ${e.last_name}` }))} />
           <Select label="نوع الإجازة *" value={form.leave_type_id} onChange={e => setForm(f => ({ ...f, leave_type_id: e.target.value }))}
             options={types.map(t => ({ value: t.id, label: t.name_ar || t.name }))} />
-          <div className="grid grid-cols-2 gap-3">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <Input label="من تاريخ *" type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
             <Input label="إلى تاريخ *" type="date" value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
           </div>
           {form.start_date && form.end_date && (
-            <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-center">
-              <span className="text-indigo-700 font-bold text-lg">{calcDays(form.start_date, form.end_date)}</span>
-              <span className="text-indigo-600 text-sm mr-1">أيام</span>
+            <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, padding: '10px 16px', textAlign: 'center' }}>
+              <span style={{ fontSize: 24, fontWeight: 800, color: '#2563eb' }}>{calcDays(form.start_date, form.end_date)}</span>
+              <span style={{ fontSize: 14, color: '#3b82f6', marginRight: 6 }}>أيام</span>
             </div>
           )}
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">السبب</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>السبب</label>
             <textarea value={form.reason} onChange={e => setForm(f => ({ ...f, reason: e.target.value }))} rows={3}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition resize-none" />
+              style={{ padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 13, color: '#0f172a', resize: 'none', outline: 'none', fontFamily: 'Cairo, sans-serif' }}
+              onFocus={e => e.target.style.borderColor = '#2563eb'}
+              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+            />
           </div>
-          <div className="flex gap-2 justify-end pt-2">
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 4 }}>
             <Button variant="outline" onClick={() => setShowForm(false)}>إلغاء</Button>
             <Button loading={saving} onClick={handleSave}>إرسال الطلب</Button>
           </div>
